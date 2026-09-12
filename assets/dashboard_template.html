@@ -1,0 +1,531 @@
+<title>공장창고 블로그 포스팅 현황판</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root{
+  --paper: #EEF1EF;
+  --paper-raised: #F8FAF9;
+  --ink: #16202A;
+  --ink-soft: #4B5A5F;
+  --line: #D4DAD6;
+  --line-strong: #B7C0BB;
+  --brand: #2E5266;
+  --brand-ink: #ffffff;
+
+  --pt: #2F5FA0;   /* 평택 */
+  --pt-soft: #DCE6F3;
+  --as: #2F7A5C;   /* 안성 */
+  --as-soft: #DCEDE4;
+  --ca: #B96A1E;   /* 천안 */
+  --ca-soft: #F3E3D0;
+  --etc: #6B746F;  /* 기타 */
+  --etc-soft: #E2E4E1;
+
+  --gap: #A93A2E;
+  --gap-soft: #F5DFDA;
+  --good: #2F7A5C;
+
+  --shadow: 0 1px 2px rgba(20,30,28,0.06), 0 6px 20px rgba(20,30,28,0.06);
+}
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper: #121818;
+    --paper-raised: #1A2222;
+    --ink: #E9EDEA;
+    --ink-soft: #A7B3AE;
+    --line: #2B3534;
+    --line-strong: #3C4846;
+    --brand: #7FB0C7;
+    --brand-ink: #0E1414;
+
+    --pt: #7FAEEA;
+    --pt-soft: #1E3350;
+    --as: #6FC79E;
+    --as-soft: #1B3A2C;
+    --ca: #E3A15C;
+    --ca-soft: #3D2C17;
+    --etc: #9AA6A0;
+    --etc-soft: #2A3230;
+
+    --gap: #E2776A;
+    --gap-soft: #402320;
+    --good: #6FC79E;
+
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper: #121818;
+  --paper-raised: #1A2222;
+  --ink: #E9EDEA;
+  --ink-soft: #A7B3AE;
+  --line: #2B3534;
+  --line-strong: #3C4846;
+  --brand: #7FB0C7;
+  --brand-ink: #0E1414;
+
+  --pt: #7FAEEA;
+  --pt-soft: #1E3350;
+  --as: #6FC79E;
+  --as-soft: #1B3A2C;
+  --ca: #E3A15C;
+  --ca-soft: #3D2C17;
+  --etc: #9AA6A0;
+  --etc-soft: #2A3230;
+
+  --gap: #E2776A;
+  --gap-soft: #402320;
+  --good: #6FC79E;
+
+  --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+}
+
+*{box-sizing:border-box;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Noto Sans KR', -apple-system, sans-serif;
+  padding:32px 20px 64px;
+}
+.wrap{max-width:1180px;margin:0 auto;}
+
+.mono{font-family:'IBM Plex Mono','Noto Sans KR',monospace; font-variant-numeric: tabular-nums;}
+
+/* ---------- companion nav ---------- */
+.companion-nav{display:flex; justify-content:flex-end; margin-bottom:16px;}
+.nav-btn{
+  display:inline-flex; align-items:center; gap:6px; padding:9px 18px; border-radius:100px;
+  background:var(--brand); color:var(--brand-ink); text-decoration:none;
+  font-size:13px; font-weight:700; box-shadow:var(--shadow); white-space:nowrap;
+}
+.nav-btn:hover{opacity:.88;}
+.nav-btn:focus-visible{outline:2px solid var(--brand); outline-offset:2px;}
+
+/* ---------- header ---------- */
+header{
+  display:flex; flex-wrap:wrap; gap:20px 32px;
+  align-items:flex-end; justify-content:space-between;
+  padding-bottom:22px; margin-bottom:28px;
+  border-bottom:1px solid var(--line-strong);
+}
+.eyebrow{
+  font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--brand); margin:0 0 8px;
+}
+h1{
+  font-family:'Gowun Batang', 'Noto Sans KR', serif;
+  font-size:clamp(26px,3.4vw,36px);
+  font-weight:700; margin:0 0 6px; text-wrap:balance;
+  letter-spacing:-0.01em;
+}
+.sub{color:var(--ink-soft); font-size:14.5px; margin:0; max-width:60ch;}
+.meta{
+  text-align:right; font-size:12.5px; color:var(--ink-soft);
+  display:flex; flex-direction:column; gap:4px;
+}
+.meta .range{
+  font-family:'IBM Plex Mono',monospace; font-size:14px; color:var(--ink); font-weight:600;
+}
+
+section{margin-bottom:40px;}
+.section-head{display:flex; align-items:baseline; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+.section-head h2{font-size:18px; margin:0; font-weight:700;}
+.section-head p{margin:0; font-size:13px; color:var(--ink-soft);}
+
+/* ---------- callout ---------- */
+.callout{
+  background:var(--paper-raised); border:1px solid var(--line);
+  border-left:4px solid var(--gap);
+  border-radius:10px; padding:16px 20px; box-shadow:var(--shadow);
+  display:flex; flex-direction:column; gap:8px;
+}
+.callout h3{margin:0; font-size:14px; letter-spacing:.02em;}
+.callout ul{margin:0; padding-left:1.15em; font-size:14px; line-height:1.7; color:var(--ink);}
+.callout li b{font-weight:700;}
+.tag-city{
+  display:inline-flex; align-items:center; padding:1px 8px 2px; border-radius:100px;
+  font-size:12px; font-weight:600; margin:0 2px; white-space:nowrap;
+}
+.tag-city.pt{background:var(--pt-soft); color:var(--pt);}
+.tag-city.as{background:var(--as-soft); color:var(--as);}
+.tag-city.ca{background:var(--ca-soft); color:var(--ca);}
+.tag-city.etc{background:var(--etc-soft); color:var(--etc);}
+
+/* ---------- coverage matrix ---------- */
+.matrix-scroll{overflow-x:auto; border-radius:12px; box-shadow:var(--shadow); border:1px solid var(--line);}
+table.matrix{border-collapse:collapse; width:100%; min-width:680px; background:var(--paper-raised);}
+table.matrix th, table.matrix td{padding:0; }
+table.matrix thead th{
+  font-size:12.5px; font-weight:700; color:var(--ink-soft); text-align:center;
+  padding:12px 10px; border-bottom:1px solid var(--line-strong);
+  background:var(--paper-raised);
+}
+table.matrix thead th:first-child{text-align:left; padding-left:18px;}
+table.matrix tbody td{border-bottom:1px solid var(--line); text-align:center; vertical-align:middle;}
+table.matrix tbody tr:last-child td{border-bottom:none;}
+table.matrix td.blogcell{
+  text-align:left; padding:14px 10px 14px 18px; font-weight:600; font-size:14px;
+  white-space:nowrap;
+}
+table.matrix td.blogcell .handle{display:block; font-size:11.5px; color:var(--ink-soft); font-weight:500; font-family:'IBM Plex Mono',monospace;}
+.cellwrap{display:flex; align-items:center; justify-content:center; padding:10px 8px;}
+.count-pill{
+  min-width:34px; height:34px; padding:0 8px; border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:16px;
+  border:1px solid transparent;
+}
+.count-pill.gap{
+  border:1.6px dashed var(--gap); color:var(--gap); background:var(--gap-soft);
+  font-size:13px; font-weight:700;
+}
+.matrix td.tot{font-weight:700; font-size:16px;}
+tr.totrow td{background:var(--paper); font-weight:700; border-top:2px solid var(--line-strong);}
+tr.totrow td.blogcell{color:var(--ink);}
+th.city-pt{color:var(--pt);} th.city-as{color:var(--as);} th.city-ca{color:var(--ca);} th.city-etc{color:var(--etc);}
+
+/* ---------- calendar heatmap ---------- */
+.cal-scroll{overflow-x:auto; border-radius:12px; box-shadow:var(--shadow); border:1px solid var(--line); background:var(--paper-raised);}
+table.cal{border-collapse:collapse; width:100%; min-width:920px;}
+table.cal th, table.cal td{border-bottom:1px solid var(--line); padding:0;}
+table.cal thead th{
+  padding:10px 4px 8px; text-align:center; border-bottom:1px solid var(--line-strong);
+  font-weight:600;
+}
+table.cal thead th .d{font-family:'IBM Plex Mono',monospace; font-size:13px; display:block;}
+table.cal thead th .w{font-size:10.5px; color:var(--ink-soft); font-weight:500;}
+table.cal thead th.today{color:var(--brand);}
+table.cal thead th.today .d{font-weight:700;}
+table.cal td.blogcell{
+  text-align:left; padding:10px 10px 10px 18px; font-weight:600; font-size:13.5px; white-space:nowrap;
+  border-right:1px solid var(--line);
+}
+table.cal tbody tr:last-child td{border-bottom:none;}
+.daycell{height:44px; display:flex; align-items:center; justify-content:center; gap:3px;}
+.dot{width:10px; height:10px; border-radius:3px;}
+.dot.pt{background:var(--pt);} .dot.as{background:var(--as);} .dot.ca{background:var(--ca);} .dot.etc{background:var(--etc);}
+
+.legend{display:flex; gap:16px; flex-wrap:wrap; margin-top:12px; font-size:12.5px; color:var(--ink-soft);}
+.legend span{display:inline-flex; align-items:center; gap:6px;}
+.legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
+
+/* ---------- filters ---------- */
+.filters{display:flex; gap:8px 10px; flex-wrap:wrap; margin-bottom:14px;}
+.filters .grp{display:flex; gap:6px; flex-wrap:wrap; padding-right:14px; border-right:1px solid var(--line);}
+.filters .grp:last-child{border-right:none;}
+.chip{
+  border:1px solid var(--line-strong); background:var(--paper-raised); color:var(--ink-soft);
+  font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:100px; cursor:pointer;
+  transition:background .12s,color .12s,border-color .12s;
+  font-family:'Noto Sans KR',sans-serif;
+}
+.chip:hover{border-color:var(--brand);}
+.chip.active{background:var(--brand); color:var(--brand-ink); border-color:var(--brand);}
+.chip:focus-visible{outline:2px solid var(--brand); outline-offset:2px;}
+
+/* ---------- detail table ---------- */
+.detail-scroll{overflow-x:auto; border-radius:12px; box-shadow:var(--shadow); border:1px solid var(--line);}
+table.detail{border-collapse:collapse; width:100%; min-width:760px; background:var(--paper-raised);}
+table.detail thead th{
+  text-align:left; font-size:12px; font-weight:700; color:var(--ink-soft); letter-spacing:.03em;
+  text-transform:uppercase; padding:11px 14px; border-bottom:1px solid var(--line-strong);
+}
+table.detail tbody td{padding:11px 14px; border-bottom:1px solid var(--line); font-size:13.8px; vertical-align:top;}
+table.detail tbody tr:last-child td{border-bottom:none;}
+table.detail tbody tr:hover{background:var(--paper);}
+table.detail td.date{font-family:'IBM Plex Mono',monospace; white-space:nowrap; color:var(--ink-soft); font-size:13px;}
+table.detail td.blog{white-space:nowrap; font-weight:600;}
+table.detail td.title a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line-strong);}
+table.detail td.title a:hover{border-color:var(--brand); color:var(--brand);}
+table.detail td.cities{white-space:nowrap;}
+
+footer{margin-top:36px; font-size:12px; color:var(--ink-soft); border-top:1px solid var(--line); padding-top:16px;}
+
+@media (prefers-reduced-motion: reduce){ .chip{transition:none;} }
+
+@media (max-width:640px){
+  header{flex-direction:column; align-items:flex-start;}
+  .meta{text-align:left;}
+  .companion-nav{justify-content:flex-start;}
+}
+</style>
+
+<div class="wrap">
+
+  <div class="companion-nav">
+    <a class="nav-btn" href="https://claude.ai/code/artifact/2d35938e-cdbb-4020-8559-918e1519c940" target="_blank" rel="noopener">경쟁사 현황판 보기 →</a>
+  </div>
+
+  <header>
+    <div>
+      <p class="eyebrow">공장·창고 임대 블로그 5개 · 포스팅 현황판</p>
+      <h1>MY Report</h1>
+      <p class="sub">평택 · 안성 · 천안·아산 세 지역 매물 포스팅이 5개 블로그에 고르게 분산되고 있는지 확인하는 표입니다. 빈칸이 다음 포스팅 자리입니다.</p>
+    </div>
+    <div class="meta">
+      <span>캘린더 구간 (10일)</span>
+      <span class="range">2026.09.02 – 2026.09.11</span>
+      <span>커버리지 · 우선순위는 최근 7일 기준</span>
+      <span>Naver 블로그 RSS 기준 · 09.11 수집</span>
+    </div>
+  </header>
+
+  <section id="matrix">
+    <div class="section-head">
+      <h2>지역 커버리지</h2>
+      <p>블로그 × 도시. <span id="matrix-range">최근 7일간</span> 포스팅 수 — 점선 빨간 칸은 아직 안 쓴 도시입니다.</p>
+    </div>
+
+    <div class="matrix-scroll">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>블로그</th>
+            <th class="city-pt">평택</th>
+            <th class="city-as">안성</th>
+            <th class="city-ca">천안·아산</th>
+            <th class="city-etc">기타 지역</th>
+            <th>합계</th>
+          </tr>
+        </thead>
+        <tbody id="matrix-body"></tbody>
+        <tfoot>
+          <tr class="totrow" id="matrix-total"></tr>
+        </tfoot>
+      </table>
+    </div>
+  </section>
+
+  <section id="priority">
+    <div class="section-head">
+      <h2>다음 포스팅 우선순위</h2>
+      <p>표에서 자동으로 뽑은, 지금 채워야 할 자리입니다.</p>
+    </div>
+    <div class="callout">
+      <h3>오늘 써야 한다면 이 순서로</h3>
+      <ul id="priority-list"></ul>
+    </div>
+  </section>
+
+  <section id="calendar">
+    <div class="section-head">
+      <h2>10일 포스팅 캘린더</h2>
+      <p>블로그별로 어느 요일에 쉬었는지 한눈에 봅니다. 색은 그날 쓴 매물의 지역입니다.</p>
+    </div>
+    <div class="cal-scroll">
+      <table class="cal">
+        <thead>
+          <tr id="cal-head"><th style="text-align:left; padding-left:18px;">블로그</th></tr>
+        </thead>
+        <tbody id="cal-body"></tbody>
+      </table>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--pt)"></i>평택</span>
+      <span><i style="background:var(--as)"></i>안성</span>
+      <span><i style="background:var(--ca)"></i>천안·아산</span>
+      <span><i style="background:var(--etc)"></i>기타 지역</span>
+    </div>
+  </section>
+
+  <section id="detail">
+    <div class="section-head">
+      <h2>전체 포스팅 목록</h2>
+      <p><span id="detail-count">최근 20건</span>, 최신순. 블로그·도시 칩을 눌러 좁혀보세요.</p>
+    </div>
+
+    <div class="filters">
+      <div class="grp" id="filter-blog"></div>
+      <div class="grp" id="filter-city"></div>
+    </div>
+
+    <div class="detail-scroll">
+      <table class="detail">
+        <thead>
+          <tr><th>날짜</th><th>블로그</th><th>제목</th><th>지역</th></tr>
+        </thead>
+        <tbody id="detail-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    데이터 출처: 각 블로그의 <span class="mono">rss.blog.naver.com</span> 공개 피드. 제목에 지역명이 없으면 '기타 지역'으로 분류했습니다 (예: 화성·용인 매물). 다시 확인하려면 "블로그 현황 갱신해줘"라고 요청하세요.
+  </footer>
+
+</div>
+
+<script>
+const CITY_META = {
+  pt: {label:'평택', cls:'pt'},
+  as: {label:'안성', cls:'as'},
+  ca: {label:'천안·아산', cls:'ca'},
+  etc:{label:'기타', cls:'etc'},
+};
+
+// ===DASHBOARD_DATA_START===
+const BLOGS = [{"id": "up_6242", "handle": "up_6242", "name": "명예공인중개사사무소"}, {"id": "vertical3623", "handle": "vertical3623", "name": "M8 공장전문 명예공인중개사사무소"}, {"id": "ymy2020", "handle": "ymy2020", "name": "공장다이쏘 다있는 명예부동산"}, {"id": "kwcho05", "handle": "kwcho05", "name": "육각형공장-명예공인중개사사무소"}, {"id": "stay8566", "handle": "stay8566", "name": "명예공장 최다매물공장전문"}];
+const DAYS = [{"iso": "2026-09-02", "md": "09/02", "wd": "수"}, {"iso": "2026-09-03", "md": "09/03", "wd": "목"}, {"iso": "2026-09-04", "md": "09/04", "wd": "금"}, {"iso": "2026-09-05", "md": "09/05", "wd": "토"}, {"iso": "2026-09-06", "md": "09/06", "wd": "일"}, {"iso": "2026-09-07", "md": "09/07", "wd": "월"}, {"iso": "2026-09-08", "md": "09/08", "wd": "화"}, {"iso": "2026-09-09", "md": "09/09", "wd": "수"}, {"iso": "2026-09-10", "md": "09/10", "wd": "목"}, {"iso": "2026-09-11", "md": "09/11", "wd": "금"}];
+const TODAY = '2026-09-11';
+const POSTS = [{"blog": "up_6242", "date": "2026-09-11", "time": "13:00", "title": "화성 양감면 용소리 공장임대 150평 신축급 2동 단독 대형차량진입", "link": "https://blog.naver.com/up_6242/224407575073", "cities": ["etc"]}, {"blog": "up_6242", "date": "2026-09-11", "time": "00:50", "title": "천안공장창고 임대 입장면 평당1만원 1700평 일괄 부분임대", "link": "https://blog.naver.com/up_6242/224407591907", "cities": ["ca"]}, {"blog": "vertical3623", "date": "2026-09-11", "time": "00:50", "title": "안성공장임대 크린룸 이력 있는 제조공장 800평 사무실 기숙", "link": "https://blog.naver.com/vertical3623/224407648615", "cities": ["as"]}, {"blog": "ymy2020", "date": "2026-09-09", "time": "15:10", "title": "아산 음봉 170평 공장 임대 호이스트 사무실 있는 제조 공장", "link": "https://blog.naver.com/ymy2020/224341495138", "cities": ["ca"]}, {"blog": "ymy2020", "date": "2026-09-08", "time": "18:20", "title": "[11056] 용인 남사 158평 통삼리 넓은 마당", "link": "https://blog.naver.com/ymy2020/224340599169", "cities": ["etc"]}, {"blog": "vertical3623", "date": "2026-09-08", "time": "00:10", "title": "평택공장임대 약 200평 호이스트 넓은마당 제조공장", "link": "https://blog.naver.com/vertical3623/224404091134", "cities": ["pt"]}, {"blog": "kwcho05", "date": "2026-09-07", "time": "10:12", "title": "평택공장임대 지제 90평 고덕삼성 반도체 인근 도보가능 10분", "link": "https://blog.naver.com/kwcho05/224403323835", "cities": ["pt"]}, {"blog": "kwcho05", "date": "2026-09-07", "time": "00:50", "title": "천안 성환 공장임대 157평 단기임대 가능 호이스트 3톤", "link": "https://blog.naver.com/kwcho05/224382208478", "cities": ["ca"]}, {"blog": "vertical3623", "date": "2026-09-07", "time": "00:20", "title": "아산 음봉 창고임대 산동리 120평 신축 대형차진입 즉시입주", "link": "https://blog.naver.com/vertical3623/224402814166", "cities": ["ca"]}, {"blog": "vertical3623", "date": "2026-09-06", "time": "07:50", "title": "평택 청북읍 냉동 냉장 물류창고 임대 614평 준신축 층고10m 어연IC 인근", "link": "https://blog.naver.com/vertical3623/224400047741", "cities": ["pt"]}, {"blog": "stay8566", "date": "2026-09-05", "time": "10:44", "title": "안성 물류 창고 센터 1200평 관리비 없는 저렴한 사용료 고속도로 접근수월", "link": "https://blog.naver.com/stay8566/224314656357", "cities": ["as"]}, {"blog": "up_6242", "date": "2026-09-05", "time": "08:42", "title": "화성공장임대 향남 건물100평 제조 가능한 저렴한 임대료 매물", "link": "https://blog.naver.com/up_6242/224401582883", "cities": ["etc"]}, {"blog": "vertical3623", "date": "2026-09-05", "time": "08:30", "title": "천안 산업단지 개발 전망과 공장 창고 임대 매매 수요 분석 2026년 기준", "link": "https://blog.naver.com/vertical3623/224395498841", "cities": ["ca"]}, {"blog": "ymy2020", "date": "2026-09-05", "time": "08:18", "title": "아산 천안 크린룸 공장임대 둔포면 석곡리 600평 1200평 분할가능 클린룸 대형마당", "link": "https://blog.naver.com/ymy2020/224401570382", "cities": ["ca"]}, {"blog": "vertical3623", "date": "2026-09-04", "time": "01:20", "title": "안성공장임대 200평 대덕면 대형차량 가능한 단독 넓은마당 고전력", "link": "https://blog.naver.com/vertical3623/224400029116", "cities": ["as"]}, {"blog": "stay8566", "date": "2026-09-03", "time": "22:10", "title": "용인 창고 야적장 임대 남사읍봉무리 건물 40평 대지 200평 사무실 즉시입주", "link": "https://blog.naver.com/stay8566/224311047187", "cities": ["etc"]}, {"blog": "vertical3623", "date": "2026-09-03", "time": "19:10", "title": "평택 공장임대 청북IC 5분 층고 높은 14M 호이스트 고전력 300kw 대형공장", "link": "https://blog.naver.com/vertical3623/224400003970", "cities": ["pt"]}, {"blog": "kwcho05", "date": "2026-09-03", "time": "08:40", "title": "천안 아산에서 소형창고임대를 찾고 계신가요? 60평 저렴한 임대", "link": "https://blog.naver.com/kwcho05/224399306896", "cities": ["ca"]}, {"blog": "up_6242", "date": "2026-09-03", "time": "07:30", "title": "평택 공장임대 150평 호이스트 단독 넓은마당 고덕 삼성 인근 제조 공장", "link": "https://blog.naver.com/up_6242/224394492976", "cities": ["pt"]}, {"blog": "ymy2020", "date": "2026-09-03", "time": "00:21", "title": "안성공장임대 미양면 층고10m 전력100kw 대형차량 트레일러가능 반도체 설비보관창고로 사용중", "link": "https://blog.naver.com/ymy2020/224399094328", "cities": ["as"]}, {"blog": "up_6242", "date": "2026-09-03", "time": "00:10", "title": "안성 양성면 신축 창고 임대 층고10M 대형차량 물류창고", "link": "https://blog.naver.com/up_6242/224399018937", "cities": ["as"]}, {"blog": "ymy2020", "date": "2026-09-02", "time": "10:54", "title": "천안 공장임대 성환읍 150평 단독마당 호이스트레일 대형차진입 가능 사무실 별도 단기임대 가능", "link": "https://blog.naver.com/ymy2020/224398257267", "cities": ["ca"]}];
+// ===DASHBOARD_DATA_END===
+
+const CITY_ORDER = ['pt','as','ca','etc'];
+
+// 지역 커버리지 / 우선순위는 이 윈도우만 본다 (캘린더는 DAYS 전체 10일 그대로 유지)
+const MATRIX_WINDOW_DAYS = 7;
+function isoMinusDays(iso, days){
+  const d = new Date(iso+'T00:00:00');
+  d.setDate(d.getDate()-days);
+  return d.toISOString().slice(0,10);
+}
+const MATRIX_CUTOFF = isoMinusDays(TODAY, MATRIX_WINDOW_DAYS - 1); // 오늘 포함 MATRIX_WINDOW_DAYS일
+function mdLabel(iso){ return iso.slice(5).replace('-','/'); }
+
+function buildMatrix(){
+  const body = document.getElementById('matrix-body');
+  const totals = {pt:0,as:0,ca:0,etc:0,all:0};
+  const windowPosts = POSTS.filter(p=>p.date>=MATRIX_CUTOFF);
+
+  const rangeEl = document.getElementById('matrix-range');
+  if(rangeEl) rangeEl.textContent = `최근 ${MATRIX_WINDOW_DAYS}일간 (${mdLabel(MATRIX_CUTOFF)}–${mdLabel(TODAY)})`;
+
+  const byBlog = BLOGS.map(b=>{
+    const counts = {pt:0,as:0,ca:0,etc:0};
+    const blogPosts = windowPosts.filter(p=>p.blog===b.id);
+    blogPosts.forEach(p=>p.cities.forEach(c=>counts[c]++));
+    const total = blogPosts.length;
+    totals.all += total;
+    CITY_ORDER.forEach(c=>totals[c]+=counts[c]);
+    return {...b, counts, total};
+  });
+
+  byBlog.forEach(b=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="blogcell">${b.name}<span class="handle">${b.handle}</span></td>
+      ${CITY_ORDER.map(c=>`<td><div class="cellwrap"><span class="count-pill ${b.counts[c]===0?'gap':''}">${b.counts[c]===0?'0':b.counts[c]}</span></div></td>`).join('')}
+      <td class="tot">${b.total}</td>
+    `;
+    body.appendChild(tr);
+  });
+
+  document.getElementById('matrix-total').innerHTML = `
+    <td class="blogcell">전체 합계</td>
+    ${CITY_ORDER.map(c=>`<td><div class="cellwrap">${totals[c]}</div></td>`).join('')}
+    <td class="tot"><div class="cellwrap">${totals.all}</div></td>
+  `;
+  return {totals, byBlog};
+}
+
+function buildPriority(byBlog){
+  const list = document.getElementById('priority-list');
+  const targetCities = ['pt','as','ca'];
+  const zeroItems = [];
+  byBlog.forEach(b=>{
+    targetCities.forEach(c=>{
+      if(b.counts[c]===0) zeroItems.push({blog:b, city:c});
+    });
+  });
+  const maxTotal = Math.max(...byBlog.map(b=>b.total));
+  const quiet = byBlog.filter(b=>maxTotal>0 && b.total<=maxTotal/2).sort((a,b)=>a.total-b.total);
+
+  const lis = [];
+  zeroItems.forEach(z=>{
+    const meta = CITY_META[z.city];
+    lis.push(`<li><b>${z.blog.name}</b> — 최근 ${MATRIX_WINDOW_DAYS}일간 <span class="tag-city ${meta.cls}">${meta.label}</span> 매물 글이 <b>0건</b>입니다. 여기부터 채우세요.</li>`);
+  });
+  if(quiet.length){
+    lis.push(`<li>전체 포스팅 수가 적은 블로그: ${quiet.map(b=>`<b>${b.name}</b>(${b.total}건)`).join(', ')} — 같은 기간 다른 블로그의 절반 이하 페이스입니다.</li>`);
+  }
+  if(!lis.length){
+    lis.push(`<li>최근 ${MATRIX_WINDOW_DAYS}일간은 세 지역 모두 채워져 있습니다. 다음 우선순위는 캘린더에서 며칠 쉰 블로그를 확인하세요.</li>`);
+  }
+  list.innerHTML = lis.join('');
+}
+
+function buildCalendar(){
+  const head = document.getElementById('cal-head');
+  DAYS.forEach(d=>{
+    const th = document.createElement('th');
+    th.className = d.iso===TODAY ? 'today' : '';
+    th.innerHTML = `<span class="d">${d.md}</span><span class="w">${d.iso===TODAY?'오늘':d.wd}</span>`;
+    head.appendChild(th);
+  });
+
+  const body = document.getElementById('cal-body');
+  BLOGS.forEach(b=>{
+    const tr = document.createElement('tr');
+    let rowHtml = `<td class="blogcell">${b.name}</td>`;
+    DAYS.forEach(d=>{
+      const dayPosts = POSTS.filter(p=>p.blog===b.id && p.date===d.iso);
+      const dots = [];
+      dayPosts.forEach(p=>p.cities.forEach(c=>dots.push(`<span class="dot ${c}" title="${CITY_META[c].label}"></span>`)));
+      rowHtml += `<td><div class="daycell">${dots.join('')}</div></td>`;
+    });
+    tr.innerHTML = rowHtml;
+    body.appendChild(tr);
+  });
+}
+
+const DETAIL_LIMIT = 20;
+function buildDetail(){
+  const sorted = [...POSTS].sort((a,b)=> (b.date+b.time).localeCompare(a.date+a.time)).slice(0, DETAIL_LIMIT);
+  const body = document.getElementById('detail-body');
+  const countEl = document.getElementById('detail-count');
+  if(countEl) countEl.textContent = `최근 ${sorted.length}건`;
+
+  function render(filterBlog, filterCity){
+    body.innerHTML = '';
+    sorted.filter(p=>{
+      const okBlog = filterBlog==='all' || p.blog===filterBlog;
+      const okCity = filterCity==='all' || p.cities.includes(filterCity);
+      return okBlog && okCity;
+    }).forEach(p=>{
+      const blogName = BLOGS.find(b=>b.id===p.blog).name;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="date">${p.date.slice(5).replace('-','/')} ${p.time}</td>
+        <td class="blog">${blogName}</td>
+        <td class="title"><a href="${p.link}" target="_blank" rel="noopener">${p.title}</a></td>
+        <td class="cities">${p.cities.map(c=>`<span class="tag-city ${CITY_META[c].cls}">${CITY_META[c].label}</span>`).join(' ')}</td>
+      `;
+      body.appendChild(tr);
+    });
+  }
+
+  const blogFilterEl = document.getElementById('filter-blog');
+  const cityFilterEl = document.getElementById('filter-city');
+  let state = {blog:'all', city:'all'};
+
+  function chip(label, active, onClick){
+    const el = document.createElement('button');
+    el.className = 'chip' + (active?' active':'');
+    el.textContent = label;
+    el.type = 'button';
+    el.addEventListener('click', onClick);
+    return el;
+  }
+
+  function refreshChips(){
+    blogFilterEl.innerHTML=''; cityFilterEl.innerHTML='';
+    blogFilterEl.appendChild(chip('전체 블로그', state.blog==='all', ()=>{state.blog='all'; refreshChips(); render(state.blog,state.city);}));
+    BLOGS.forEach(b=>{
+      blogFilterEl.appendChild(chip(b.name.length>10? b.handle : b.name, state.blog===b.id, ()=>{state.blog = state.blog===b.id?'all':b.id; refreshChips(); render(state.blog,state.city);}));
+    });
+    cityFilterEl.appendChild(chip('전체 지역', state.city==='all', ()=>{state.city='all'; refreshChips(); render(state.blog,state.city);}));
+    CITY_ORDER.forEach(c=>{
+      cityFilterEl.appendChild(chip(CITY_META[c].label, state.city===c, ()=>{state.city = state.city===c?'all':c; refreshChips(); render(state.blog,state.city);}));
+    });
+  }
+
+  refreshChips();
+  render('all','all');
+}
+
+const {totals, byBlog} = buildMatrix();
+buildPriority(byBlog);
+buildCalendar();
+buildDetail();
+</script>

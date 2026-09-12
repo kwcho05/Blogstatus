@@ -1,0 +1,479 @@
+<title>경쟁사 블로그 현황판</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root{
+  --paper: #EEF1EF;
+  --paper-raised: #F8FAF9;
+  --ink: #16202A;
+  --ink-soft: #4B5A5F;
+  --line: #D4DAD6;
+  --line-strong: #B7C0BB;
+  --brand: #2E5266;
+  --brand-ink: #ffffff;
+
+  --pt: #2F5FA0;   /* 평택 */
+  --pt-soft: #DCE6F3;
+  --as: #2F7A5C;   /* 안성 */
+  --as-soft: #DCEDE4;
+  --ca: #B96A1E;   /* 천안·아산 */
+  --ca-soft: #F3E3D0;
+  --hs: #1C8C86;   /* 화성 */
+  --hs-soft: #D9EFEC;
+  --os: #6B4FA0;   /* 오산 */
+  --os-soft: #E8E1F5;
+  --yi: #B23A6B;   /* 용인 */
+  --yi-soft: #F6DCE7;
+  --etc: #6B746F;  /* 기타 */
+  --etc-soft: #E2E4E1;
+
+  --gap: #A93A2E;
+  --gap-soft: #F5DFDA;
+  --good: #2F7A5C;
+
+  --shadow: 0 1px 2px rgba(20,30,28,0.06), 0 6px 20px rgba(20,30,28,0.06);
+}
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper: #121818;
+    --paper-raised: #1A2222;
+    --ink: #E9EDEA;
+    --ink-soft: #A7B3AE;
+    --line: #2B3534;
+    --line-strong: #3C4846;
+    --brand: #7FB0C7;
+    --brand-ink: #0E1414;
+
+    --pt: #7FAEEA;
+    --pt-soft: #1E3350;
+    --as: #6FC79E;
+    --as-soft: #1B3A2C;
+    --ca: #E3A15C;
+    --ca-soft: #3D2C17;
+    --hs: #5FC9C2;
+    --hs-soft: #123331;
+    --os: #B39DDB;
+    --os-soft: #322A4A;
+    --yi: #E38FB0;
+    --yi-soft: #40202D;
+    --etc: #9AA6A0;
+    --etc-soft: #2A3230;
+
+    --gap: #E2776A;
+    --gap-soft: #402320;
+    --good: #6FC79E;
+
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper: #121818;
+  --paper-raised: #1A2222;
+  --ink: #E9EDEA;
+  --ink-soft: #A7B3AE;
+  --line: #2B3534;
+  --line-strong: #3C4846;
+  --brand: #7FB0C7;
+  --brand-ink: #0E1414;
+
+  --pt: #7FAEEA;
+  --pt-soft: #1E3350;
+  --as: #6FC79E;
+  --as-soft: #1B3A2C;
+  --ca: #E3A15C;
+  --ca-soft: #3D2C17;
+  --hs: #5FC9C2;
+  --hs-soft: #123331;
+  --os: #B39DDB;
+  --os-soft: #322A4A;
+  --yi: #E38FB0;
+  --yi-soft: #40202D;
+  --etc: #9AA6A0;
+  --etc-soft: #2A3230;
+
+  --gap: #E2776A;
+  --gap-soft: #402320;
+  --good: #6FC79E;
+
+  --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+}
+
+*{box-sizing:border-box;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Noto Sans KR', -apple-system, sans-serif;
+  padding:32px 20px 64px;
+}
+.wrap{max-width:1180px;margin:0 auto;}
+
+.mono{font-family:'IBM Plex Mono','Noto Sans KR',monospace; font-variant-numeric: tabular-nums;}
+
+/* ---------- companion nav ---------- */
+.companion-nav{display:flex; justify-content:flex-end; margin-bottom:16px;}
+.nav-btn{
+  display:inline-flex; align-items:center; gap:6px; padding:9px 18px; border-radius:100px;
+  background:var(--brand); color:var(--brand-ink); text-decoration:none;
+  font-size:13px; font-weight:700; box-shadow:var(--shadow); white-space:nowrap;
+}
+.nav-btn:hover{opacity:.88;}
+.nav-btn:focus-visible{outline:2px solid var(--brand); outline-offset:2px;}
+
+/* ---------- header ---------- */
+header{
+  display:flex; flex-wrap:wrap; gap:20px 32px;
+  align-items:flex-end; justify-content:space-between;
+  padding-bottom:22px; margin-bottom:28px;
+  border-bottom:1px solid var(--line-strong);
+}
+.eyebrow{
+  font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--brand); margin:0 0 8px;
+}
+h1{
+  font-family:'Gowun Batang', 'Noto Sans KR', serif;
+  font-size:clamp(26px,3.4vw,36px);
+  font-weight:700; margin:0 0 6px; text-wrap:balance;
+  letter-spacing:-0.01em;
+}
+.sub{color:var(--ink-soft); font-size:14.5px; margin:0; max-width:62ch;}
+.meta{
+  text-align:right; font-size:12.5px; color:var(--ink-soft);
+  display:flex; flex-direction:column; gap:4px;
+}
+.meta .range{
+  font-family:'IBM Plex Mono',monospace; font-size:14px; color:var(--ink); font-weight:600;
+}
+
+section{margin-bottom:40px;}
+.section-head{display:flex; align-items:baseline; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+.section-head h2{font-size:18px; margin:0; font-weight:700;}
+.section-head p{margin:0; font-size:13px; color:var(--ink-soft);}
+
+/* ---------- callout ---------- */
+.callout{
+  background:var(--paper-raised); border:1px solid var(--line);
+  border-left:4px solid var(--brand);
+  border-radius:10px; padding:16px 20px; box-shadow:var(--shadow);
+  display:flex; flex-direction:column; gap:8px;
+}
+.callout h3{margin:0; font-size:14px; letter-spacing:.02em;}
+.callout ul{margin:0; padding-left:1.15em; font-size:14px; line-height:1.7; color:var(--ink);}
+.callout li b{font-weight:700;}
+.callout .stat-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:2px;}
+.stat-chip{
+  display:inline-flex; align-items:baseline; gap:6px; padding:6px 12px; border-radius:8px;
+  background:var(--paper); border:1px solid var(--line); font-size:13px;
+}
+.stat-chip b{font-family:'IBM Plex Mono',monospace; font-size:15px;}
+.tag-city{
+  display:inline-flex; align-items:center; padding:1px 8px 2px; border-radius:100px;
+  font-size:12px; font-weight:600; margin:0 2px; white-space:nowrap;
+}
+.tag-city.pt{background:var(--pt-soft); color:var(--pt);}
+.tag-city.as{background:var(--as-soft); color:var(--as);}
+.tag-city.ca{background:var(--ca-soft); color:var(--ca);}
+.tag-city.hs{background:var(--hs-soft); color:var(--hs);}
+.tag-city.os{background:var(--os-soft); color:var(--os);}
+.tag-city.yi{background:var(--yi-soft); color:var(--yi);}
+.tag-city.etc{background:var(--etc-soft); color:var(--etc);}
+
+/* ---------- calendar heatmap ---------- */
+.cal-scroll{overflow-x:auto; border-radius:12px; box-shadow:var(--shadow); border:1px solid var(--line); background:var(--paper-raised);}
+table.cal{border-collapse:collapse; width:100%; min-width:920px;}
+table.cal th, table.cal td{border-bottom:1px solid var(--line); padding:0;}
+table.cal thead th{
+  padding:10px 4px 8px; text-align:center; border-bottom:1px solid var(--line-strong);
+  font-weight:600;
+}
+table.cal thead th .d{font-family:'IBM Plex Mono',monospace; font-size:13px; display:block;}
+table.cal thead th .w{font-size:10.5px; color:var(--ink-soft); font-weight:500;}
+table.cal thead th.today{color:var(--brand);}
+table.cal thead th.today .d{font-weight:700;}
+table.cal td.blogcell{
+  text-align:left; padding:10px 10px 10px 18px; font-weight:600; font-size:13.5px; white-space:nowrap;
+  border-right:1px solid var(--line);
+}
+table.cal tbody tr:last-child td{border-bottom:none;}
+.daycell{height:44px; display:flex; align-items:center; justify-content:center; gap:3px;}
+.dot{width:10px; height:10px; border-radius:3px;}
+.dot.pt{background:var(--pt);} .dot.as{background:var(--as);} .dot.ca{background:var(--ca);} .dot.hs{background:var(--hs);} .dot.os{background:var(--os);} .dot.yi{background:var(--yi);} .dot.etc{background:var(--etc);}
+
+.legend{display:flex; gap:16px; flex-wrap:wrap; margin-top:12px; font-size:12.5px; color:var(--ink-soft);}
+.legend span{display:inline-flex; align-items:center; gap:6px;}
+.legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
+
+/* ---------- filters ---------- */
+.filters{display:flex; gap:8px 10px; flex-wrap:wrap; margin-bottom:14px;}
+.filters .grp{display:flex; gap:6px; flex-wrap:wrap; padding-right:14px; border-right:1px solid var(--line);}
+.filters .grp:last-child{border-right:none;}
+.chip{
+  border:1px solid var(--line-strong); background:var(--paper-raised); color:var(--ink-soft);
+  font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:100px; cursor:pointer;
+  transition:background .12s,color .12s,border-color .12s;
+  font-family:'Noto Sans KR',sans-serif;
+}
+.chip:hover{border-color:var(--brand);}
+.chip.active{background:var(--brand); color:var(--brand-ink); border-color:var(--brand);}
+.chip:focus-visible{outline:2px solid var(--brand); outline-offset:2px;}
+
+/* ---------- detail table ---------- */
+.detail-scroll{overflow-x:auto; border-radius:12px; box-shadow:var(--shadow); border:1px solid var(--line);}
+table.detail{border-collapse:collapse; width:100%; min-width:760px; background:var(--paper-raised);}
+table.detail thead th{
+  text-align:left; font-size:12px; font-weight:700; color:var(--ink-soft); letter-spacing:.03em;
+  text-transform:uppercase; padding:11px 14px; border-bottom:1px solid var(--line-strong);
+}
+table.detail tbody td{padding:11px 14px; border-bottom:1px solid var(--line); font-size:13.8px; vertical-align:top;}
+table.detail tbody tr:last-child td{border-bottom:none;}
+table.detail tbody tr:hover{background:var(--paper);}
+table.detail td.date{font-family:'IBM Plex Mono',monospace; white-space:nowrap; color:var(--ink-soft); font-size:13px;}
+table.detail td.blog{white-space:nowrap; font-weight:600;}
+table.detail td.title a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line-strong);}
+table.detail td.title a:hover{border-color:var(--brand); color:var(--brand);}
+table.detail td.cities{white-space:nowrap;}
+
+footer{margin-top:36px; font-size:12px; color:var(--ink-soft); border-top:1px solid var(--line); padding-top:16px;}
+
+@media (prefers-reduced-motion: reduce){ .chip{transition:none;} }
+
+@media (max-width:640px){
+  header{flex-direction:column; align-items:flex-start;}
+  .meta{text-align:left;}
+  .companion-nav{justify-content:flex-start;}
+}
+</style>
+
+<div class="wrap">
+
+  <div class="companion-nav">
+    <a class="nav-btn" href="https://claude.ai/code/artifact/75a7adc8-80c3-4f68-b366-0fbc7b6df28f" target="_blank" rel="noopener">← 우리 블로그 현황판</a>
+  </div>
+
+  <header>
+    <div>
+      <p class="eyebrow">경쟁사 블로그 20개 · 포스팅 현황판</p>
+      <h1>경쟁사는 지금 어디를 쓰고 있나</h1>
+      <p class="sub">평택 · 안성 · 천안·아산 · 화성 · 오산 · 용인 매물 포스팅이 경쟁사 20곳 사이에서 어떻게 분포되는지 보는 표입니다. 조용한 지역이 우리 쪽 기회입니다.</p>
+    </div>
+    <div class="meta">
+      <span>집계 구간 (10일)</span>
+      <span class="range">2026.08.31 – 2026.09.09</span>
+      <span>Naver 블로그 RSS 기준 · 09.09 수집</span>
+    </div>
+  </header>
+
+  <section id="priority">
+    <div class="section-head">
+      <h2>지역별 경쟁 강도</h2>
+      <p><span id="priority-range">최근 10일간</span> 경쟁사 전체가 어느 지역을 얼마나 썼는지 집계했습니다.</p>
+    </div>
+    <div class="callout">
+      <h3>어디가 붐비고, 어디가 조용한가</h3>
+      <ul id="priority-list"></ul>
+    </div>
+  </section>
+
+  <section id="calendar">
+    <div class="section-head">
+      <h2>10일 포스팅 캘린더</h2>
+      <p>경쟁사별로 어느 요일에 활동했는지 한눈에 봅니다. 색은 그날 쓴 매물의 지역입니다.</p>
+    </div>
+    <div class="cal-scroll">
+      <table class="cal">
+        <thead>
+          <tr id="cal-head"><th style="text-align:left; padding-left:18px;">경쟁사</th></tr>
+        </thead>
+        <tbody id="cal-body"></tbody>
+      </table>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--pt)"></i>평택</span>
+      <span><i style="background:var(--as)"></i>안성</span>
+      <span><i style="background:var(--ca)"></i>천안·아산</span>
+      <span><i style="background:var(--hs)"></i>화성</span>
+      <span><i style="background:var(--os)"></i>오산</span>
+      <span><i style="background:var(--yi)"></i>용인</span>
+      <span><i style="background:var(--etc)"></i>기타 지역</span>
+    </div>
+  </section>
+
+  <section id="detail">
+    <div class="section-head">
+      <h2>전체 포스팅 목록</h2>
+      <p id="detail-count">82건, 최신순. 경쟁사·지역 칩을 눌러 좁혀보세요.</p>
+    </div>
+
+    <div class="filters">
+      <div class="grp" id="filter-blog"></div>
+      <div class="grp" id="filter-city"></div>
+    </div>
+
+    <div class="detail-scroll">
+      <table class="detail">
+        <thead>
+          <tr><th>날짜</th><th>경쟁사</th><th>제목</th><th>지역</th></tr>
+        </thead>
+        <tbody id="detail-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    데이터 출처: 각 블로그의 <span class="mono">rss.blog.naver.com</span> 공개 피드. 제목에 평택·안성·천안·아산·화성·오산·용인이 없으면 '기타 지역'으로 분류했습니다(당진·예산 등 인근 지역 매물이 많습니다). 다시 확인하려면 "경쟁사 현황 갱신해줘"라고 요청하세요.
+  </footer>
+
+</div>
+
+<script>
+const CITY_META = {
+  pt: {label:'평택', cls:'pt'},
+  as: {label:'안성', cls:'as'},
+  ca: {label:'천안·아산', cls:'ca'},
+  hs: {label:'화성', cls:'hs'},
+  os: {label:'오산', cls:'os'},
+  yi: {label:'용인', cls:'yi'},
+  etc:{label:'기타', cls:'etc'},
+};
+
+// ===DASHBOARD_DATA_START===
+const BLOGS = [{"id": "shmy3300", "name": "천안아산공장전문 부동산", "handle": "shmy3300"}, {"id": "chofall2021", "name": "전지적 부동산 시점", "handle": "chofall2021"}, {"id": "jjune0010", "name": "천안 주택,건물,토지 매매", "handle": "jjune0010"}, {"id": "fallingrain90", "name": "평택 천안 안성 공장 창고 전문 더원 부동산", "handle": "fallingrain90"}, {"id": "wldnjswlghks1", "name": "콕부동산", "handle": "wldnjswlghks1"}, {"id": "the_onecom90", "name": "더원_ 실 매물 공장창고전문", "handle": "the_onecom90"}, {"id": "speed1867", "name": "천안아산공장나라TV", "handle": "speed1867"}, {"id": "mamasky09", "name": "천안아산 공장인사이트", "handle": "mamasky09"}, {"id": "melody404", "name": "하이부동산", "handle": "melody404"}, {"id": "highhigh3022", "name": "하이부동산 공장창고전문", "handle": "highhigh3022"}, {"id": "cjsuddl88", "name": "팔팔부동산중개", "handle": "cjsuddl88"}, {"id": "sayfree9", "name": "탑부동산중개 | 물류·제조업 성장 파트너", "handle": "sayfree9"}, {"id": "mksung0913", "name": "성신부동산 [공장창고전문]", "handle": "mksung0913"}, {"id": "band1101", "name": "힘내자~", "handle": "band1101"}, {"id": "malice0404", "name": "Ishouldworkhard.", "handle": "malice0404"}, {"id": "yuks76", "name": "Ishouldworkhard.", "handle": "yuks76"}, {"id": "malice0926", "name": "공장·창고 찾을 땐 | 밴드부동산.com", "handle": "malice0926"}, {"id": "7575aaa", "name": "7575aaa", "handle": "7575aaa"}, {"id": "chlrhqnehdtks486", "name": "압도적 의뢰받는 부동산", "handle": "chlrhqnehdtks486"}, {"id": "chlfactory", "name": "반짝반짝 빛나는 부동산", "handle": "chlfactory"}];
+const DAYS = [{"iso": "2026-08-31", "md": "08/31", "wd": "월"}, {"iso": "2026-09-01", "md": "09/01", "wd": "화"}, {"iso": "2026-09-02", "md": "09/02", "wd": "수"}, {"iso": "2026-09-03", "md": "09/03", "wd": "목"}, {"iso": "2026-09-04", "md": "09/04", "wd": "금"}, {"iso": "2026-09-05", "md": "09/05", "wd": "토"}, {"iso": "2026-09-06", "md": "09/06", "wd": "일"}, {"iso": "2026-09-07", "md": "09/07", "wd": "월"}, {"iso": "2026-09-08", "md": "09/08", "wd": "화"}, {"iso": "2026-09-09", "md": "09/09", "wd": "수"}];
+const TODAY = '2026-09-09';
+const POSTS = [{"blog": "fallingrain90", "date": "2026-09-09", "time": "06:16", "title": "평택 창고 임대 포승읍 원정리920평 넓은마당 평택항 인근 트레일러 진입 단독창고", "link": "https://blog.naver.com/fallingrain90/224404341830", "cities": ["pt"]}, {"blog": "highhigh3022", "date": "2026-09-08", "time": "17:52", "title": "안성창고임대 야적장 추천 넓은마당 단독 소형공장임대입니다.", "link": "https://blog.naver.com/highhigh3022/224405055288", "cities": ["as"]}, {"blog": "shmy3300", "date": "2026-09-08", "time": "14:53", "title": "아산500평공장임대·매매｜음봉 산동리 532평 1만Class 클린룸, 감정가 35억!", "link": "https://blog.naver.com/shmy3300/224404826969", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-08", "time": "12:40", "title": "매물번호-267(아산 - 공장매매)아산시 음봉면 의식리 공장 12억｜경제자유구역 호재｜공장+사무실 완비｜7.5m 고층고｜즉시 입주", "link": "https://blog.naver.com/wldnjswlghks1/224402195761", "cities": ["ca"]}, {"blog": "shmy3300", "date": "2026-09-08", "time": "11:35", "title": "⚠️천안대형공장매매｜성환 4,516평 부지·공장 1,185평, 추가 증축 여력까지!", "link": "https://blog.naver.com/shmy3300/224404604004", "cities": ["ca"]}, {"blog": "chlrhqnehdtks486", "date": "2026-09-08", "time": "09:51", "title": "오산공장임대 부산동 59평 건물 동탄 오산IC 인근 단독형태 마당 민원소지적음 내부사무실 완비 매물번호 10236", "link": "https://blog.naver.com/chlrhqnehdtks486/224404482186", "cities": ["os"]}, {"blog": "wldnjswlghks1", "date": "2026-09-08", "time": "08:50", "title": "매물번호-266(천안 - 공장임대)천안시 서북구 성환읍 공장임대 232평｜즉시입주｜물류최강｜2.8톤 호이스트 월세650만", "link": "https://blog.naver.com/wldnjswlghks1/224402194357", "cities": ["ca"]}, {"blog": "the_onecom90", "date": "2026-09-08", "time": "07:50", "title": "평택 공장 임대 청북읍 855평 도크시설 넓은 마당 트레일러 진입", "link": "https://blog.naver.com/the_onecom90/224402334993", "cities": ["pt"]}, {"blog": "fallingrain90", "date": "2026-09-08", "time": "07:30", "title": "평택 공장 임대 청북읍 고잔리800평 넓은마당 트레일러진입 호이스트 신축급", "link": "https://blog.naver.com/fallingrain90/224402320404", "cities": ["pt"]}, {"blog": "mamasky09", "date": "2026-09-07", "time": "20:25", "title": "아산음봉공장매매 산동리 공장매매 심층|케이밸리 산단배후, 준클린룸 보유 신축급 공장 (매도희망 35억)", "link": "https://blog.naver.com/mamasky09/224404013908", "cities": ["ca"]}, {"blog": "mamasky09", "date": "2026-09-07", "time": "19:52", "title": "천안산업단지임대 제4산업단지 준클린룸 공장임대 | 4층 준크리룸470평1층약100평 별도임대", "link": "https://blog.naver.com/mamasky09/224403987564", "cities": ["ca"]}, {"blog": "shmy3300", "date": "2026-09-07", "time": "19:28", "title": "아산200평공장임대｜영인면 273평, 7.5톤·5톤 호이스트와 넓은 940평 대지", "link": "https://blog.naver.com/shmy3300/224403968782", "cities": ["ca"]}, {"blog": "chlfactory", "date": "2026-09-07", "time": "15:07", "title": "오산 창고 임대 부산동 40평 건물 내부사무실 완비 민원제로 오산IC 동탄2신도시 인근", "link": "https://blog.naver.com/chlfactory/224403670762", "cities": ["os"]}, {"blog": "cjsuddl88", "date": "2026-09-07", "time": "12:15", "title": "[평택 공장 임대] 청북읍 고잔리 422평 대형공장 5톤 호이스트 설치된 공장이며, 청북 ic 5분 내 진입가능", "link": "https://blog.naver.com/cjsuddl88/224403469562", "cities": ["pt"]}, {"blog": "shmy3300", "date": "2026-09-07", "time": "10:19", "title": "️북천안IC 150평 공장 임대 | 대지 930평 넓은 마당 확보! 호이스트 5T설치가능한 천안150평공장임대", "link": "https://blog.naver.com/shmy3300/224403332531", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-07", "time": "08:50", "title": "매물번호-265(아산 - 토지매매)아산 대형공장부지 4590평 매매 115억|삼성·탕정디스플레이 배후지|반도체공장 최적지", "link": "https://blog.naver.com/wldnjswlghks1/224394613172", "cities": ["ca"]}, {"blog": "fallingrain90", "date": "2026-09-07", "time": "07:50", "title": "화성 공장 임대 양감면 200평 호이스트5톤 층고11m 사무실 완비", "link": "https://blog.naver.com/fallingrain90/224401663962", "cities": ["hs"]}, {"blog": "the_onecom90", "date": "2026-09-07", "time": "07:30", "title": "화성 공장 임대 팔탄면 103평 해썹인증 이력 단독공장", "link": "https://blog.naver.com/the_onecom90/224401527676", "cities": ["hs"]}, {"blog": "cjsuddl88", "date": "2026-09-06", "time": "21:07", "title": "화성 동오리 공장임대 약 107평 전력 50kw이상, 호이스트 1.5톤, 사출공장, 사무실 설치, 좋은 가성비 매믈", "link": "https://blog.naver.com/cjsuddl88/224402895682", "cities": ["hs"]}, {"blog": "cjsuddl88", "date": "2026-09-06", "time": "12:54", "title": "양감 송산리 창고, 공장임대 약 360평 전력 200kw, 큰 평수, 13.2m 높은 층고, 공장등록가능", "link": "https://blog.naver.com/cjsuddl88/224402548585", "cities": ["etc"]}, {"blog": "wldnjswlghks1", "date": "2026-09-06", "time": "12:50", "title": "매물번호-264(아산 - 공장임대)아산시 염치읍 방현리 공장 임대 | 45번 국도 인접, 539평 야드 신축급 2000/180", "link": "https://blog.naver.com/wldnjswlghks1/224394614085", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-06", "time": "08:30", "title": "매물번호-263(아산 - 공장임대)아산시 음봉면 산동리 공장임차｜보증금 3500만 월세 400만｜공장+사무동 완비 30KW 전력 제조업소 완벽", "link": "https://blog.naver.com/wldnjswlghks1/224394611227", "cities": ["ca"]}, {"blog": "jjune0010", "date": "2026-09-05", "time": "21:05", "title": "두정동 깔끔한 중대형 사무실 , 구분된 업무공간", "link": "https://blog.naver.com/jjune0010/224402083118", "cities": ["etc"]}, {"blog": "jjune0010", "date": "2026-09-05", "time": "21:02", "title": "아산 신정호 상가임대｜방축동 1층 40평대 대형 상가, 짬뽕전문점", "link": "https://blog.naver.com/jjune0010/224402081410", "cities": ["ca"]}, {"blog": "chlrhqnehdtks486", "date": "2026-09-05", "time": "17:56", "title": "오산 공장 임대 갈곶동 960평 초대형 단독마당 일반공업지역 오산IC 인접 대형 물류 제조 공장 임대", "link": "https://blog.naver.com/chlrhqnehdtks486/224401973346", "cities": ["os"]}, {"blog": "wldnjswlghks1", "date": "2026-09-05", "time": "13:00", "title": "매물번호-262(아산 - 공장임대)염치읍 123평 제조업소 | 5.2m 층고·행거도어·2층사무실 | 보증금 3200·월세 320", "link": "https://blog.naver.com/wldnjswlghks1/224394610365", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-05", "time": "09:00", "title": "매물번호-261(아산 - 공장매매)아산시 음봉면 쌍암리 공장 12.4억｜200KW 고전력｜650평 대형부지｜급매!!", "link": "https://blog.naver.com/wldnjswlghks1/224394609410", "cities": ["ca"]}, {"blog": "mamasky09", "date": "2026-09-04", "time": "17:53", "title": "아산산업단지 대형공장매매 준클린룸 클린룸시설 공장매매 | 약8000평 크린룸 반도체,전자부품 클린룸공장", "link": "https://blog.naver.com/mamasky09/224401119839", "cities": ["ca"]}, {"blog": "shmy3300", "date": "2026-09-04", "time": "16:29", "title": "천안물류창고임대 ️북천안IC 13분 신축 첫입주 2,331평 대형창고임대", "link": "https://blog.naver.com/shmy3300/224401019233", "cities": ["ca"]}, {"blog": "chlfactory", "date": "2026-09-04", "time": "13:44", "title": "화성 동탄 창고 임대 금곡동 34평 소형 창고 단독형태마당 소매점 쇼핑몰 추천", "link": "https://blog.naver.com/chlfactory/224400815469", "cities": ["hs"]}, {"blog": "mksung0913", "date": "2026-09-04", "time": "12:30", "title": "화성 향남 100평 단독공장 임대 신축 2차선접 마당넓은공장 창고임대 광고효과 넓은마당 임대 매매", "link": "https://blog.naver.com/mksung0913/224400735974", "cities": ["hs"]}, {"blog": "wldnjswlghks1", "date": "2026-09-04", "time": "12:10", "title": "매물번호-260(아산 - 공장임대)아산 염치읍 공장용 건물 임대|보증금 3700만 월세 379만|매매 11억 6800만 건물 151평", "link": "https://blog.naver.com/wldnjswlghks1/224394607739", "cities": ["ca"]}, {"blog": "chofall2021", "date": "2026-09-04", "time": "11:11", "title": "[천안 공장 임대] 300평대 사무실 큰 단독공장 / 성환읍 마당 1000평 이상, 항온항습 고전력, 북천안IC", "link": "https://blog.naver.com/chofall2021/224400646999", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-09-04", "time": "11:06", "title": "평택 청북 200평 400평 단독공장 임대 2차선접 호이스트5톤 광고효과 배관 철강 반도체공장 추천 대지1300평 대형마당 고덕삼성 협력업체공장", "link": "https://blog.naver.com/mksung0913/224400640443", "cities": ["pt"]}, {"blog": "wldnjswlghks1", "date": "2026-09-04", "time": "08:00", "title": "매물번호-259(천안 - 공장임대)천안 직산 제4일반산업단지 인접 CNC가공 추천 150평 임대 | 8m 고천정·호이스트 완비", "link": "https://blog.naver.com/wldnjswlghks1/224394606792", "cities": ["ca"]}, {"blog": "cjsuddl88", "date": "2026-09-04", "time": "07:30", "title": "양감 요당리 공장임대 약 450평 전력 100kw이상, 호이스트 2.8톤, 대형 큰 평수, 높은층고, 사무실 별도 부지 3천평", "link": "https://blog.naver.com/cjsuddl88/224400283737", "cities": ["etc"]}, {"blog": "the_onecom90", "date": "2026-09-04", "time": "06:01", "title": "농업 직불금 최대 얼마까지? 2026 소농직불금·면적직불금 지급기준", "link": "https://blog.naver.com/the_onecom90/224400408462", "cities": ["etc"]}, {"blog": "fallingrain90", "date": "2026-09-04", "time": "05:36", "title": "농업 직불금 1년에 얼마 받을까 2026년 농지 면적별 예상 지급액 계산", "link": "https://blog.naver.com/fallingrain90/224400401043", "cities": ["etc"]}, {"blog": "band1101", "date": "2026-09-04", "time": "00:10", "title": "[안성시 대덕면] 저렴한임대료 안성공장창고임대 넓은마당 창고 및 다양한 업종가능", "link": "https://blog.naver.com/band1101/224398449211", "cities": ["as"]}, {"blog": "malice0926", "date": "2026-09-04", "time": "00:10", "title": "양감면 위치 화성공장임대 소형공장 건물 약 56평 25톤진입가능 양감IC 향남IC 인근", "link": "https://blog.naver.com/malice0926/224398445515", "cities": ["hs"]}, {"blog": "mamasky09", "date": "2026-09-03", "time": "19:24", "title": "천안공장매매 북천안공장매매 천안모전리 북천안IC 5분! 교통의 핵심 경부고속도로 공장·물류창고 매매 (평택-천안 반도체/입지분석)", "link": "https://blog.naver.com/mamasky09/224400034815", "cities": ["pt", "ca"]}, {"blog": "highhigh3022", "date": "2026-09-03", "time": "18:01", "title": "오산공장임대 창고가능 연면적 960평 사무실별도 고전력 사용가능합니다", "link": "https://blog.naver.com/highhigh3022/224399963850", "cities": ["os"]}, {"blog": "chlrhqnehdtks486", "date": "2026-09-03", "time": "16:11", "title": "화성 동탄 공장 임대 금곡동 2차선 접 11톤 대형차 진출입 내부 사무실 완비 50평 공장 창고 임대", "link": "https://blog.naver.com/chlrhqnehdtks486/224399829673", "cities": ["hs"]}, {"blog": "wldnjswlghks1", "date": "2026-09-03", "time": "12:40", "title": "매물번호-258(아산 - 공장임대)아산시 음봉면 공장 90평 임대 | 150KW 고전력 소형공장 | 콤프레샤 기본구비 호이스트", "link": "https://blog.naver.com/wldnjswlghks1/224394605802", "cities": ["ca"]}, {"blog": "sayfree9", "date": "2026-09-03", "time": "10:42", "title": "[팔탄식품공장 매매] HACCP 인증 완료 냉장·냉동시설 갖춘 화성 팔탄 공장매매", "link": "https://blog.naver.com/sayfree9/224399410635", "cities": ["hs"]}, {"blog": "melody404", "date": "2026-09-03", "time": "10:02", "title": "안성공장임대 양성면위치한 창고임대로도 좋습니다. 호이스트 크린룸  고전력 공장임대", "link": "https://blog.naver.com/melody404/224399385665", "cities": ["as"]}, {"blog": "wldnjswlghks1", "date": "2026-09-03", "time": "09:00", "title": "매물번호-257(아산 - 토지매매)아산 공장부지 염치읍 662평 13.2억 | 평당 200만원·허가완료·대출90%가능 | 현충사IC·45번국도 인접·성장성우수", "link": "https://blog.naver.com/wldnjswlghks1/224394604869", "cities": ["ca"]}, {"blog": "fallingrain90", "date": "2026-09-03", "time": "07:50", "title": "아산 음봉 공장 임대 787평 넓은마당 트레일러 호이스트 완비", "link": "https://blog.naver.com/fallingrain90/224398166755", "cities": ["ca"]}, {"blog": "the_onecom90", "date": "2026-09-03", "time": "07:30", "title": "천안 공장 임대 성환읍 60평 1번 국도 인접 신축 소형 공장", "link": "https://blog.naver.com/the_onecom90/224398046325", "cities": ["ca"]}, {"blog": "yuks76", "date": "2026-09-03", "time": "00:10", "title": "[화성시 만세구 양감면] 화성공장매매 단독공장 대지 약 300평 건물 약 90평 신축건물 마당넓음 양감IC인근", "link": "https://blog.naver.com/yuks76/224398435937", "cities": ["hs"]}, {"blog": "cjsuddl88", "date": "2026-09-02", "time": "17:45", "title": "향남 상두리 공장임대 약 120평 전력 49kw, 호이스트 3톤, 산업단지, 가성비 월차임 평 당 약 2.5만원", "link": "https://blog.naver.com/cjsuddl88/224398742233", "cities": ["etc"]}, {"blog": "chlfactory", "date": "2026-09-02", "time": "17:34", "title": "용인 공장 임대 남사읍 북리 440평 신축 첫입주 층고 12m 오수직관 내부사무실 기숙사 옵션", "link": "https://blog.naver.com/chlfactory/224398729743", "cities": ["yi"]}, {"blog": "mamasky09", "date": "2026-09-02", "time": "17:03", "title": "아산공장매매 신창면공장 궁화리 공장매매 | 현대자동차 핵심클러스터·공장동 평가절하 개축 및 리모델링추천 부지", "link": "https://blog.naver.com/mamasky09/224398691737", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-09-02", "time": "15:29", "title": "평택 팽성 공장 임대 200평 단독공장 두동구조 호이스트2기 사무실완비", "link": "https://blog.naver.com/mksung0913/224398572816", "cities": ["pt"]}, {"blog": "wldnjswlghks1", "date": "2026-09-02", "time": "12:50", "title": "매물번호-256(아산 - 공장임대)아산 염치읍 방현리 건물 임대 대형건물 273평 호이스트 3T 2기 월세 680만|보증금 6800만|매매 17억 6800만", "link": "https://blog.naver.com/wldnjswlghks1/224394602931", "cities": ["ca"]}, {"blog": "speed1867", "date": "2026-09-02", "time": "11:43", "title": "아산육가공공장매매｜HACCP 인증받은 대형 육가공공장, 즉시 가동 가능한 신창면 공장｜식품공장500평, 냉장 냉동 전력 250KW", "link": "https://blog.naver.com/speed1867/224398316268", "cities": ["ca"]}, {"blog": "mamasky09", "date": "2026-09-02", "time": "09:56", "title": "예산대형공장매매 예산산업단지 최고스펙 신축공장 | 대지 2.2만평·연면적 1.29만평|자동차부품 조립제조업·금속가공·전기장비 추천", "link": "https://blog.naver.com/mamasky09/224398191275", "cities": ["etc"]}, {"blog": "wldnjswlghks1", "date": "2026-09-02", "time": "08:50", "title": "매물번호-255(아산 - 공장매매)아산시 음봉면 소동리 공장 12억｜200KW 초고전력｜7m 고층고｜삼성반도체 배후지｜임대차 승계", "link": "https://blog.naver.com/wldnjswlghks1/224394600614", "cities": ["ca"]}, {"blog": "the_onecom90", "date": "2026-09-02", "time": "05:30", "title": "천안 공장 임대 성환읍 137평 신축 트레일러 진입 넓은마당", "link": "https://blog.naver.com/the_onecom90/224398028745", "cities": ["ca"]}, {"blog": "fallingrain90", "date": "2026-09-02", "time": "04:22", "title": "평택 공장 임대 100평 포승공단 호이스트5톤 트레일러 진입", "link": "https://blog.naver.com/fallingrain90/224398010347", "cities": ["pt"]}, {"blog": "cjsuddl88", "date": "2026-09-01", "time": "16:26", "title": "향남 갈천 공장임대 약 59평 전력 30kw, 제조업소, 공장등록가능, 가성비, 월차임 평 당 약 2만원", "link": "https://blog.naver.com/cjsuddl88/224397456920", "cities": ["etc"]}, {"blog": "cjsuddl88", "date": "2026-09-01", "time": "15:58", "title": "양감공장임대 약 100평 전력 30kw, 제조업소 등록, 가성비 좋은, 창고 및 공장용지", "link": "https://blog.naver.com/cjsuddl88/224397420579", "cities": ["etc"]}, {"blog": "mamasky09", "date": "2026-09-01", "time": "15:12", "title": "아산둔포 대형공장 둔포공장매매 천안,아산,단지산업벨트 핵심지역 | 대지20,000평 반도체·자동차부품 핵심클러스터 둔포", "link": "https://blog.naver.com/mamasky09/224397360792", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-09-01", "time": "12:50", "title": "평택 서탄 공장 창고 임대 113평 저렴한임대료 대형차 단독마당 도로변 진위역인근", "link": "https://blog.naver.com/mksung0913/224397189961", "cities": ["pt"]}, {"blog": "wldnjswlghks1", "date": "2026-09-01", "time": "12:30", "title": "매물번호-254(천안 - 토지매매)천안시 동남구 목천읍 용연저수지 뷰 전원주택 부지 2.5억 | 평당 136만원 명품 토지 2029년 관광개발 호재", "link": "https://blog.naver.com/wldnjswlghks1/224394599268", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-09-01", "time": "10:39", "title": "당진 대형 공장 임대 호이스트 3000평 호이스트 10톤 30톤 2기 층고높은 단독공장 광고효과 좋은 도로변 고전력", "link": "https://blog.naver.com/mksung0913/224397037490", "cities": ["etc"]}, {"blog": "wldnjswlghks1", "date": "2026-09-01", "time": "08:40", "title": "매물번호-253(아산 - 공장매매)염치읍 123평 제2종근린생활시설 | 5.2m 층고·행거도어·이층구조 | 10억 7,800만 | 탕정디스플레이 영향권", "link": "https://blog.naver.com/wldnjswlghks1/224394597835", "cities": ["ca"]}, {"blog": "fallingrain90", "date": "2026-09-01", "time": "06:44", "title": "천안 공장 임대 100평 구성동 대형차 진입 넓은마당 준신축급", "link": "https://blog.naver.com/fallingrain90/224396850979", "cities": ["ca"]}, {"blog": "the_onecom90", "date": "2026-09-01", "time": "06:30", "title": "아산 공장 임대 둔포면 석곡리200평 크린룸 층고9m 호이스트5톤 고전력950kw", "link": "https://blog.naver.com/the_onecom90/224396845596", "cities": ["ca"]}, {"blog": "the_onecom90", "date": "2026-08-31", "time": "14:49", "title": "천안 공장 임대 직산읍 신갈리 100평 호이스트3톤 고전력100kw", "link": "https://blog.naver.com/the_onecom90/224396070903", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-08-31", "time": "14:27", "title": "당진 공장 임대 송산 연면적 2800평 10톤호이스트 3기 층고16m 신축 마당넓은 단독공장 츄레라 진입", "link": "https://blog.naver.com/mksung0913/224396042427", "cities": ["etc"]}, {"blog": "shmy3300", "date": "2026-08-31", "time": "13:25", "title": "천안1000평공장임대｜1,089평 전력 450kW 넓은 마당까지, 동남구 대형공장임대", "link": "https://blog.naver.com/shmy3300/224395967013", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-08-31", "time": "12:54", "title": "[전속매물]용인 남사읍 2000평 공장임대 사무실 기숙사 식당외주업체입점 용인반도체클러스터 입지좋은 공장 트레일러진입 전기2000kw 공장임대", "link": "https://blog.naver.com/mksung0913/224395933143", "cities": ["yi"]}, {"blog": "wldnjswlghks1", "date": "2026-08-31", "time": "12:50", "title": "매물번호-252(천안 - 다중주택매매)천안 봉명동 수익형 고시원 8.2억 | 월 600만원 수익 주택수 제외 절세형 투자용부동산", "link": "https://blog.naver.com/wldnjswlghks1/224394596074", "cities": ["ca"]}, {"blog": "chofall2021", "date": "2026-08-31", "time": "11:10", "title": "[천안 공장 임대] 시내권, 대지 600평, 공장 120평/ 마당 500평, 건물 150평, 도로변 진입, 입지 우수", "link": "https://blog.naver.com/chofall2021/224395817376", "cities": ["ca"]}, {"blog": "fallingrain90", "date": "2026-08-31", "time": "10:51", "title": "평택 공장 매매 청북읍 고잔리1409평 3동 구조 청북ic 인근", "link": "https://blog.naver.com/fallingrain90/224395793746", "cities": ["pt"]}, {"blog": "sayfree9", "date": "2026-08-31", "time": "09:10", "title": "화성 공장 경매 | 감정가 49% 반값 진행! 양감면 신축급 제조업소 (2025타경1219)", "link": "https://blog.naver.com/sayfree9/224395397180", "cities": ["hs"]}, {"blog": "wldnjswlghks1", "date": "2026-08-31", "time": "08:40", "title": "매물번호-251(아산 - 공장매매)아산시 음봉면 소동리 공장 8.5억｜100KW 고전력｜호이스트 2기 완비｜삼성반도체 배후지", "link": "https://blog.naver.com/wldnjswlghks1/224387632498", "cities": ["ca"]}, {"blog": "band1101", "date": "2026-08-31", "time": "00:10", "title": "화성공장창고임대 광고효과 건물 약 158평 도로변 인근 양감IC 향남IC 인근", "link": "https://blog.naver.com/band1101/224392950842", "cities": ["hs"]}, {"blog": "malice0404", "date": "2026-08-31", "time": "00:10", "title": "[평택시 오성면] 오성면창공장임대 건물 50평 창고 및 단순제조업 추천 저렴한공장 즉시입주", "link": "https://blog.naver.com/malice0404/224392914866", "cities": ["pt"]}, {"blog": "yuks76", "date": "2026-08-31", "time": "00:10", "title": "[양감면] 화성공장창고임대 호이스트 7.5톤 건물 약 243평 대형차진입 양감IC인근", "link": "https://blog.naver.com/yuks76/224392934194", "cities": ["hs"]}, {"blog": "malice0926", "date": "2026-08-31", "time": "00:10", "title": "화성공장창고임대 중형공장 건물 약 150평 준신축급 대형차진입 양감IC 인근", "link": "https://blog.naver.com/malice0926/224392946486", "cities": ["hs"]}];
+// ===DASHBOARD_DATA_END===
+
+const CITY_ORDER = ['pt','as','ca','hs','os','yi','etc'];
+function mdLabel(iso){ return iso.slice(5).replace('-','/'); }
+
+// POSTS는 fetch_rss.py가 이미 캘린더 기간(현재 10일)만큼만 수집해온 결과라서,
+// 매트릭스가 없어진 지금은 따로 기간을 다시 잘라낼 필요 없이 POSTS 전체를 그대로 집계하면 된다 —
+// 그게 곧 "최근 N일"이고, DAYS 배열의 길이가 그 N이다.
+function computeStats(){
+  const totals = {}; CITY_ORDER.forEach(c=>totals[c]=0); totals.all = 0;
+  const byBlog = BLOGS.map(b=>{
+    const counts = {}; CITY_ORDER.forEach(c=>counts[c]=0);
+    const blogPosts = POSTS.filter(p=>p.blog===b.id);
+    blogPosts.forEach(p=>p.cities.forEach(c=>counts[c]++));
+    const total = blogPosts.length;
+    totals.all += total;
+    CITY_ORDER.forEach(c=>totals[c]+=counts[c]);
+    return {...b, counts, total};
+  }).sort((a,b)=>b.total-a.total);
+  return {totals, byBlog};
+}
+
+function buildCompetitiveSignal(totals, byBlog){
+  const rangeText = `최근 ${DAYS.length}일간 (${mdLabel(DAYS[0].iso)}–${mdLabel(TODAY)})`;
+  const rangeEl = document.getElementById('priority-range');
+  if(rangeEl) rangeEl.textContent = rangeText;
+
+  const list = document.getElementById('priority-list');
+  const targetCities = CITY_ORDER.filter(c=>c!=='etc');
+  const ranked = targetCities.map(c=>({code:c, meta:CITY_META[c], count:totals[c]})).sort((a,b)=>a.count-b.count);
+  const quietest = ranked[0];
+  const busiest = ranked[ranked.length-1];
+
+  const lis = [];
+  lis.push(`<li><span class="tag-city ${quietest.meta.cls}">${quietest.meta.label}</span> 언급이 경쟁사 전체에서 가장 적습니다 (<b>${quietest.count}건</b>) — 상대적으로 조용한 지역, 지금 밀어볼 만합니다.</li>`);
+  lis.push(`<li><span class="tag-city ${busiest.meta.cls}">${busiest.meta.label}</span> 언급이 가장 많습니다 (<b>${busiest.count}건</b>) — 경쟁이 가장 치열한 지역입니다.</li>`);
+
+  const top3 = [...byBlog].sort((a,b)=>b.total-a.total).slice(0,3).filter(b=>b.total>0);
+  if(top3.length){
+    lis.push(`<li>가장 활발한 경쟁사: ${top3.map(b=>`<b>${b.name}</b>(${b.total}건)`).join(', ')}</li>`);
+  }
+
+  const statRow = document.createElement('div');
+  statRow.className = 'stat-row';
+  statRow.innerHTML = targetCities.map(c=>{
+    const meta = CITY_META[c];
+    return `<span class="stat-chip"><span class="tag-city ${meta.cls}">${meta.label}</span><b>${totals[c]}</b>건</span>`;
+  }).join('') + `<span class="stat-chip"><span class="tag-city etc">기타</span><b>${totals.etc}</b>건</span>`;
+
+  list.innerHTML = lis.join('');
+  list.parentElement.appendChild(statRow);
+}
+
+function buildCalendar(){
+  const head = document.getElementById('cal-head');
+  DAYS.forEach(d=>{
+    const th = document.createElement('th');
+    th.className = d.iso===TODAY ? 'today' : '';
+    th.innerHTML = `<span class="d">${d.md}</span><span class="w">${d.iso===TODAY?'오늘':d.wd}</span>`;
+    head.appendChild(th);
+  });
+
+  const body = document.getElementById('cal-body');
+  BLOGS.forEach(b=>{
+    const tr = document.createElement('tr');
+    let rowHtml = `<td class="blogcell">${b.name}</td>`;
+    DAYS.forEach(d=>{
+      const dayPosts = POSTS.filter(p=>p.blog===b.id && p.date===d.iso);
+      const dots = [];
+      dayPosts.forEach(p=>p.cities.forEach(c=>dots.push(`<span class="dot ${c}" title="${CITY_META[c].label}"></span>`)));
+      rowHtml += `<td><div class="daycell">${dots.join('')}</div></td>`;
+    });
+    tr.innerHTML = rowHtml;
+    body.appendChild(tr);
+  });
+}
+
+function buildDetail(){
+  const sorted = [...POSTS].sort((a,b)=> (b.date+b.time).localeCompare(a.date+a.time));
+  const body = document.getElementById('detail-body');
+  document.getElementById('detail-count').textContent = `${sorted.length}건, 최신순. 경쟁사·지역 칩을 눌러 좁혀보세요.`;
+
+  function render(filterBlog, filterCity){
+    body.innerHTML = '';
+    sorted.filter(p=>{
+      const okBlog = filterBlog==='all' || p.blog===filterBlog;
+      const okCity = filterCity==='all' || p.cities.includes(filterCity);
+      return okBlog && okCity;
+    }).forEach(p=>{
+      const blogName = BLOGS.find(b=>b.id===p.blog).name;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="date">${p.date.slice(5).replace('-','/')} ${p.time}</td>
+        <td class="blog">${blogName}</td>
+        <td class="title"><a href="${p.link}" target="_blank" rel="noopener">${p.title}</a></td>
+        <td class="cities">${p.cities.map(c=>`<span class="tag-city ${CITY_META[c].cls}">${CITY_META[c].label}</span>`).join(' ')}</td>
+      `;
+      body.appendChild(tr);
+    });
+  }
+
+  const blogFilterEl = document.getElementById('filter-blog');
+  const cityFilterEl = document.getElementById('filter-city');
+  let state = {blog:'all', city:'all'};
+
+  function chip(label, active, onClick){
+    const el = document.createElement('button');
+    el.className = 'chip' + (active?' active':'');
+    el.textContent = label;
+    el.type = 'button';
+    el.addEventListener('click', onClick);
+    return el;
+  }
+
+  function refreshChips(){
+    blogFilterEl.innerHTML=''; cityFilterEl.innerHTML='';
+    blogFilterEl.appendChild(chip('전체 경쟁사', state.blog==='all', ()=>{state.blog='all'; refreshChips(); render(state.blog,state.city);}));
+    BLOGS.forEach(b=>{
+      blogFilterEl.appendChild(chip(b.name.length>9? b.handle : b.name, state.blog===b.id, ()=>{state.blog = state.blog===b.id?'all':b.id; refreshChips(); render(state.blog,state.city);}));
+    });
+    cityFilterEl.appendChild(chip('전체 지역', state.city==='all', ()=>{state.city='all'; refreshChips(); render(state.blog,state.city);}));
+    CITY_ORDER.forEach(c=>{
+      cityFilterEl.appendChild(chip(CITY_META[c].label, state.city===c, ()=>{state.city = state.city===c?'all':c; refreshChips(); render(state.blog,state.city);}));
+    });
+  }
+
+  refreshChips();
+  render('all','all');
+}
+
+const {totals, byBlog} = computeStats();
+buildCompetitiveSignal(totals, byBlog);
+buildCalendar();
+buildDetail();
+</script>
