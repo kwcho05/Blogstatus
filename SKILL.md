@@ -31,12 +31,14 @@ uv run --with curl_cffi python "<이 스킬 폴더>/scripts/fetch_rss.py" --out 
 `assets/dashboard_template.html`이 완성된 대시보드 뼈대다(디자인·CSS·필터 로직 전부 포함) — 매번 새로 디자인하지 말고 이걸 복사해서 데이터만 교체한다.
 
 1. `blog_data.json`의 `last_artifact_url`(= config.md의 마지막 URL)을 `action: "read"`로 먼저 읽어서 최신 버전을 확보한다(다른 세션에서 갱신됐을 수 있음). URL이 없으면 `assets/dashboard_template.html`을 작업 디렉터리로 복사해서 시작한다.
-2. `blog_data.json`을 읽고, 파일 안의 `// ===DASHBOARD_DATA_START===` ~ `// ===DASHBOARD_DATA_END===` 사이 블록(BLOGS/DAYS/TODAY/POSTS)만 새 데이터로 통째로 교체한다. 그 위·아래의 CSS, HTML 구조, `build*()` 함수는 건드리지 않는다 — 지금까지 다듬어 온 디자인이 그 안에 있다.
+2. `blog_data.json`을 읽고, 파일 안의 `// ===DASHBOARD_DATA_START===` ~ `// ===DASHBOARD_DATA_END===` 사이 블록(BLOGS/DAYS/TODAY/GENERATED_AT/POSTS)만 새 데이터로 통째로 교체한다. 그 위·아래의 CSS, HTML 구조, `build*()` 함수는 건드리지 않는다 — 지금까지 다듬어 온 디자인이 그 안에 있다.
    - `BLOGS`: JSON의 `blogs`를 그대로 옮긴다.
    - `DAYS`, `TODAY`: JSON의 `days`, `today`를 그대로 옮긴다.
+   - `GENERATED_AT`: JSON의 `generated_at`(수집 시각 "YYYY-MM-DD HH:MM"). 헤더의 "· ... 수집" 표시와 업데이트 버튼 옆 "마지막 수집"에 쓰인다.
    - `POSTS`: JSON의 `posts`를 그대로 옮긴다(필드명 동일: blog/date/time/title/link/cities).
 3. `MATRIX_WINDOW_DAYS` 상수(데이터 블록 밖, `buildMatrix` 함수 위쪽)를 JSON의 `matrix_window_days` 값으로 맞춘다. 이 값이 커버리지 매트릭스·우선순위 콜아웃의 날짜 범위를 정하고, 화면에 표시되는 날짜 범위 라벨도 여기서 자동 계산된다.
-4. 헤더의 "캘린더 구간" 날짜 표시(`<span class="range">`)도 새 `days` 배열의 첫/마지막 날짜로 갱신한다.
+4. 헤더(블로그 개수, 캘린더 구간 날짜, 커버리지 기준일, 수집 시각, "N일 포스팅 캘린더" 제목)는 `buildHeader()`가 데이터에서 만들어 넣는다 — 2026-09-15부터 손으로 고칠 필요가 없다. 마찬가지로 범례와 매트릭스 표 머리글도 `CITY_ORDER`/`CITY_META`에서 생성되고, "전체 포스팅 목록"은 더 이상 건수를 잘라내지 않는다.
+5. **업데이트 버튼**(`.refresh-bar`, `buildRefresh()`)은 그대로 둔다. 발행된 페이지 안에서는 `rss.blog.naver.com`을 부를 수 없어서(아티팩트 샌드박스가 외부 요청을 막고, 네이버 RSS는 curl_cffi의 TLS 지문 위장이 필요하다) 버튼은 갱신 명령을 클립보드에 복사해 주는 역할을 한다 — 사용자가 Claude Code에 붙여넣으면 이 스킬이 돌아 같은 링크가 갱신된다. 2026-09-15 사용자 요청으로 두 현황판 모두에 들어갔다.
 
 **제목은 "MY Report"로 고정이다** (2026-09-12 사용자 요청 — 원래 "이번 판, 누가 어디를 비웠나"였다). `<h1>` 태그는 데이터와 무관하니 갱신할 때 건드리지 않는다.
 
@@ -54,7 +56,7 @@ config.md "관심 지역" 표는 `코드 | 표시 이름 | 매칭 키워드` 3�
 
 ## 새 지역 추가하기
 
-config.md의 "관심 지역" 표에 새 행(코드/표시 이름/매칭 키워드)을 추가하는 것만으로는 대시보드에 반영되지 않는다 — `assets/dashboard_template.html`은 각 지역 코드마다 전용 CSS 색상(라이트·다크 둘 다)과 `CITY_META`/`CITY_ORDER`/범례 항목을 갖고 있어서, 새 코드를 추가하면 이 부분들을 같은 패턴으로 하나씩 늘려야 한다. 기존 pt/as/ca 항목이 그대로 예시가 된다. (블로그 추가/삭제는 반대로 config.md만 고치면 끝 — 코드 쪽은 블로그 개수에 상관없이 동작한다.)
+config.md의 "관심 지역" 표에 새 행(코드/표시 이름/매칭 키워드)을 추가한 뒤, 대시보드 템플릿에서는 **세 군데만** 같은 패턴으로 늘리면 된다: ① 지역 코드별 CSS 변수/색상(라이트·다크 둘 다), ② `.tag-city.<코드>`(와 우리 블로그 쪽 `th.city-<코드>`, `.dot.<코드>`) 규칙, ③ `CITY_META`와 `CITY_ORDER`. 매트릭스 표 머리글·범례·집계·우선순위는 2026-09-15부터 `CITY_ORDER`에서 생성되므로 더 손대지 않아도 된다(두 템플릿 모두 일반화 완료). 기존 pt/as/ca 항목이 그대로 예시가 된다. (블로그 추가/삭제는 config.md만 고치면 끝 — 코드 쪽은 블로그 개수에 상관없이 동작한다.)
 
 ## 우선순위 판단 로직 (참고용 — 코드에 이미 구현됨)
 
@@ -72,10 +74,11 @@ config.md의 "관심 지역" 표에 새 행(코드/표시 이름/매칭 키워�
   2. **"지역별 경쟁 강도"**(`buildCompetitiveSignal` + `computeStats` 함수)는 `config_competitors.md`의 캘린더 기준일(현재 10일) 전체를 그대로 집계한다 — 매트릭스가 있던 이전 버전은 이 부분만 더 짧은 기준일(5일)을 따로 썼지만, 지금은 별도 윈도우가 없다. `POSTS` 배열 자체가 이미 `fetch_rss.py`가 캘린더 기준일만큼만 가져온 결과라서, 코드에서 다시 날짜로 잘라낼 필요가 없다 — `DAYS.length`가 곧 그 기준일 수다. **캘린더 기준일을 바꾸면 이 집계 기간도 같이 바뀐다** (독립된 기준일이 아니다 — 우리 블로그 대시보드의 5일/10일 분리와는 다른 점).
   3. 어느 지역이 가장 조용한지(=기회)/가장 붐비는지(=경쟁 치열)와 "가장 활발한 경쟁사 Top 3"를 보여준다. 개별 경쟁사×지역 빈칸을 "채우세요"라고 말하는 건 의미가 없다(그건 우리가 결정할 수 있는 게 아니다) — 그래서 이 부분만 우리 블로그 쪽과 로직이 다르다.
   4. 맨 위에 우리 블로그 현황판으로 가는 `.companion-nav` 버튼이 있고, 우리 블로그 현황판 쪽에도 이 경쟁사 현황판으로 오는 버튼이 있다 — **두 대시보드는 서로의 URL을 하드코딩해서 링크한다.** 어느 한쪽 URL이 바뀌면(예: 사용자가 지워서 새로 발행) 반드시 반대쪽 파일의 `.companion-nav` 링크도 새 URL로 고쳐서 republish해야 링크가 안 끊긴다.
+  5. **블로그 id와 실제 부동산 이름을 같이 보여준다** (2026-09-15 사용자 요청): 캘린더 첫 칸은 `wldnjswlghks1 [콕부동산]`처럼 한 줄로, 전체 포스팅 목록의 "경쟁사" 칸은 id 아래에 `[이름]`을 붙여 두 줄로 쓴다. id는 `handle`, 이름은 RSS 채널 제목(`name`)이다. 필터 칩은 좁아야 해서 id만 쓰고 전체 이름은 `title` 툴팁에 넣는다.
 - 실행 순서는 동일하다: `fetch_rss.py --config config_competitors.md`로 데이터를 받고, 템플릿의 데이터 블록을 교체하고, `config_competitors.md`의 마지막 URL로 갱신 발행한다.
 
 가장 최근 경쟁사 현황판 URL: `https://claude.ai/code/artifact/2d35938e-cdbb-4020-8559-918e1519c940` (실제 최신값은 `config_competitors.md`를 확인 — 여기 적힌 값은 참고용이고 그 파일이 원본이다.)
 
 **경쟁사 쪽만 지역이 3개 더 많다**: 2026-09-09 사용자 요청으로 `config_competitors.md`에 화성(hs)·오산(os)·용인(yi)을 추가해서, 경쟁사 현황판은 평택/안성/천안·아산/화성/오산/용인 6개 지역을 구분한다. `config.md`(우리 블로그)는 아직 3개(평택/안성/천안·아산)뿐이다 — "config.md와 config_competitors.md는 같은 키워드 매핑을 유지해야 한다"는 위 원칙과 지금은 의도적으로 다른 상태다(경쟁사가 우리보다 넓은 지역에서 활동해서 세분화가 더 필요했음). 우리 블로그 쪽에도 화성/오산/용인을 추가해달라는 요청이 오면 `config.md`에 같은 3행을 추가하고 `assets/dashboard_template.html`에도 동일하게 CSS 색상·CITY_META·매트릭스 열·범례를 추가한다.
 
-`assets/competitor_dashboard_template.html`의 JS는 `CITY_ORDER`를 `CITY_META`에서 직접 뽑지 않고 배열로 하드코딩하지만, `computeStats`/`buildCompetitiveSignal`은 `CITY_ORDER` 배열 하나만 보고 totals·순위를 계산하도록 일반화돼 있다 — 그래서 지역을 추가/삭제할 때 `CITY_META`와 `CITY_ORDER` 두 곳만 맞추면 되고, 로직 함수 내부는 건드릴 필요가 없다. (반대로 `assets/dashboard_template.html`은 아직 이 일반화가 안 돼 있어서 `buildMatrix`/`buildPriority` 안에 `{pt:0,as:0,ca:0,etc:0}` 같은 고정 객체가 남아 있다 — 우리 블로그 쪽에 지역을 추가할 땐 이 부분도 같이 고쳐야 한다.)
+두 템플릿 모두 `CITY_ORDER`(+`CITY_META`) 하나만 보고 집계·표 머리글·범례·우선순위를 만든다 — 지역을 추가/삭제할 땐 이 두 상수와 CSS 색상만 맞추면 되고 로직 함수 내부는 건드릴 필요가 없다. `dashboard_template.html`에 남아 있던 `{pt:0,as:0,ca:0,etc:0}` 고정 객체와 `targetCities = ['pt','as','ca']` 하드코딩은 2026-09-15에 정리했다. 경쟁사 쪽 "지역별 경쟁 강도"도 이제 6개 지역 전부를 놓고 가장 조용한/붐비는 지역을 뽑는다(예전 발행본은 평택·안성·천안·아산 3개만 보고 있었다).

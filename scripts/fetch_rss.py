@@ -178,6 +178,9 @@ def main():
 
     out = {
         "today": today.isoformat(),
+        # 대시보드 헤더의 "수집 시각" 표시용 -- 같은 날 여러 번 갱신해도 언제 받아온
+        # 데이터인지 화면에서 바로 보이게 한다.
+        "generated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
         "matrix_window_days": matrix_days,
         "calendar_days": calendar_days,
         "blogs": cfg["blogs"],

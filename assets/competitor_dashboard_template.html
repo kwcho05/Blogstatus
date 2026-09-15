@@ -120,6 +120,31 @@ body{
 .nav-btn:hover{opacity:.88;}
 .nav-btn:focus-visible{outline:2px solid var(--brand); outline-offset:2px;}
 
+/* ---------- 업데이트 버튼 ---------- */
+.refresh-bar{
+  display:flex; justify-content:flex-end; align-items:center; gap:10px 12px;
+  flex-wrap:wrap; margin:-4px 0 20px;
+}
+.refresh-btn{
+  display:inline-flex; align-items:center; gap:8px; padding:9px 18px; border-radius:100px;
+  background:var(--paper-raised); color:var(--brand); border:1.5px solid var(--brand);
+  font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer;
+  box-shadow:var(--shadow); white-space:nowrap; transition:background .12s,color .12s;
+}
+.refresh-btn:hover{background:var(--brand); color:var(--brand-ink);}
+.refresh-btn:focus-visible{outline:2px solid var(--brand); outline-offset:2px;}
+.refresh-btn.done{background:var(--good); border-color:var(--good); color:#fff;}
+.refresh-ico{font-size:15px; line-height:1; display:inline-block;}
+.refresh-btn.busy .refresh-ico{animation:spin .9s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.refresh-note{font-size:12px; color:var(--ink-soft); text-align:right; line-height:1.5;}
+.refresh-cmd{
+  font-family:'IBM Plex Mono','Noto Sans KR',monospace; font-size:12px; color:var(--ink);
+  background:var(--paper-raised); border:1px solid var(--line-strong); border-radius:7px;
+  padding:5px 10px; user-select:all; cursor:text; white-space:nowrap;
+}
+@media (prefers-reduced-motion: reduce){ .refresh-btn.busy .refresh-ico{animation:none;} }
+
 /* ---------- header ---------- */
 header{
   display:flex; flex-wrap:wrap; gap:20px 32px;
@@ -195,6 +220,8 @@ table.cal td.blogcell{
   text-align:left; padding:10px 10px 10px 18px; font-weight:600; font-size:13.5px; white-space:nowrap;
   border-right:1px solid var(--line);
 }
+table.cal td.blogcell .bid{font-family:'IBM Plex Mono',monospace; font-size:12.5px;}
+table.cal td.blogcell .bname{font-weight:500; color:var(--ink-soft); font-size:12.5px; margin-left:5px;}
 table.cal tbody tr:last-child td{border-bottom:none;}
 .daycell{height:44px; display:flex; align-items:center; justify-content:center; gap:3px;}
 .dot{width:10px; height:10px; border-radius:3px;}
@@ -230,6 +257,8 @@ table.detail tbody tr:last-child td{border-bottom:none;}
 table.detail tbody tr:hover{background:var(--paper);}
 table.detail td.date{font-family:'IBM Plex Mono',monospace; white-space:nowrap; color:var(--ink-soft); font-size:13px;}
 table.detail td.blog{white-space:nowrap; font-weight:600;}
+table.detail td.blog .bid{font-family:'IBM Plex Mono',monospace; font-size:13px;}
+table.detail td.blog .bname{display:block; font-weight:500; font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
 table.detail td.title a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line-strong);}
 table.detail td.title a:hover{border-color:var(--brand); color:var(--brand);}
 table.detail td.cities{white-space:nowrap;}
@@ -242,6 +271,8 @@ footer{margin-top:36px; font-size:12px; color:var(--ink-soft); border-top:1px so
   header{flex-direction:column; align-items:flex-start;}
   .meta{text-align:left;}
   .companion-nav{justify-content:flex-start;}
+  .refresh-bar{justify-content:flex-start;}
+  .refresh-note{text-align:left;}
 }
 </style>
 
@@ -251,16 +282,24 @@ footer{margin-top:36px; font-size:12px; color:var(--ink-soft); border-top:1px so
     <a class="nav-btn" href="https://claude.ai/code/artifact/75a7adc8-80c3-4f68-b366-0fbc7b6df28f" target="_blank" rel="noopener">← 우리 블로그 현황판</a>
   </div>
 
+  <div class="refresh-bar">
+    <span class="refresh-note" id="refresh-note">마지막 수집 <b class="mono" id="collected-at">—</b></span>
+    <code class="refresh-cmd" id="refresh-cmd">경쟁사 현황 갱신해줘</code>
+    <button class="refresh-btn" id="refresh-btn" type="button">
+      <span class="refresh-ico" aria-hidden="true">⟳</span><span id="refresh-label">업데이트</span>
+    </button>
+  </div>
+
   <header>
     <div>
-      <p class="eyebrow">경쟁사 블로그 20개 · 포스팅 현황판</p>
+      <p class="eyebrow" id="eyebrow">경쟁사 블로그 · 포스팅 현황판</p>
       <h1>경쟁사는 지금 어디를 쓰고 있나</h1>
-      <p class="sub">평택 · 안성 · 천안·아산 · 화성 · 오산 · 용인 매물 포스팅이 경쟁사 20곳 사이에서 어떻게 분포되는지 보는 표입니다. 조용한 지역이 우리 쪽 기회입니다.</p>
+      <p class="sub" id="sub">평택 · 안성 · 천안·아산 · 화성 · 오산 · 용인 매물 포스팅이 경쟁사들 사이에서 어떻게 분포되는지 보는 표입니다. 조용한 지역이 우리 쪽 기회입니다.</p>
     </div>
     <div class="meta">
-      <span>집계 구간 (10일)</span>
-      <span class="range">2026.08.31 – 2026.09.09</span>
-      <span>Naver 블로그 RSS 기준 · 09.09 수집</span>
+      <span id="cal-window">집계 구간</span>
+      <span class="range" id="range">—</span>
+      <span id="src">Naver 블로그 RSS 기준</span>
     </div>
   </header>
 
@@ -277,7 +316,7 @@ footer{margin-top:36px; font-size:12px; color:var(--ink-soft); border-top:1px so
 
   <section id="calendar">
     <div class="section-head">
-      <h2>10일 포스팅 캘린더</h2>
+      <h2 id="cal-title">포스팅 캘린더</h2>
       <p>경쟁사별로 어느 요일에 활동했는지 한눈에 봅니다. 색은 그날 쓴 매물의 지역입니다.</p>
     </div>
     <div class="cal-scroll">
@@ -288,15 +327,7 @@ footer{margin-top:36px; font-size:12px; color:var(--ink-soft); border-top:1px so
         <tbody id="cal-body"></tbody>
       </table>
     </div>
-    <div class="legend">
-      <span><i style="background:var(--pt)"></i>평택</span>
-      <span><i style="background:var(--as)"></i>안성</span>
-      <span><i style="background:var(--ca)"></i>천안·아산</span>
-      <span><i style="background:var(--hs)"></i>화성</span>
-      <span><i style="background:var(--os)"></i>오산</span>
-      <span><i style="background:var(--yi)"></i>용인</span>
-      <span><i style="background:var(--etc)"></i>기타 지역</span>
-    </div>
+    <div class="legend" id="legend"></div>
   </section>
 
   <section id="detail">
@@ -338,10 +369,11 @@ const CITY_META = {
 };
 
 // ===DASHBOARD_DATA_START===
-const BLOGS = [{"id": "shmy3300", "name": "천안아산공장전문 부동산", "handle": "shmy3300"}, {"id": "chofall2021", "name": "전지적 부동산 시점", "handle": "chofall2021"}, {"id": "jjune0010", "name": "천안 주택,건물,토지 매매", "handle": "jjune0010"}, {"id": "fallingrain90", "name": "평택 천안 안성 공장 창고 전문 더원 부동산", "handle": "fallingrain90"}, {"id": "wldnjswlghks1", "name": "콕부동산", "handle": "wldnjswlghks1"}, {"id": "the_onecom90", "name": "더원_ 실 매물 공장창고전문", "handle": "the_onecom90"}, {"id": "speed1867", "name": "천안아산공장나라TV", "handle": "speed1867"}, {"id": "mamasky09", "name": "천안아산 공장인사이트", "handle": "mamasky09"}, {"id": "melody404", "name": "하이부동산", "handle": "melody404"}, {"id": "highhigh3022", "name": "하이부동산 공장창고전문", "handle": "highhigh3022"}, {"id": "cjsuddl88", "name": "팔팔부동산중개", "handle": "cjsuddl88"}, {"id": "sayfree9", "name": "탑부동산중개 | 물류·제조업 성장 파트너", "handle": "sayfree9"}, {"id": "mksung0913", "name": "성신부동산 [공장창고전문]", "handle": "mksung0913"}, {"id": "band1101", "name": "힘내자~", "handle": "band1101"}, {"id": "malice0404", "name": "Ishouldworkhard.", "handle": "malice0404"}, {"id": "yuks76", "name": "Ishouldworkhard.", "handle": "yuks76"}, {"id": "malice0926", "name": "공장·창고 찾을 땐 | 밴드부동산.com", "handle": "malice0926"}, {"id": "7575aaa", "name": "7575aaa", "handle": "7575aaa"}, {"id": "chlrhqnehdtks486", "name": "압도적 의뢰받는 부동산", "handle": "chlrhqnehdtks486"}, {"id": "chlfactory", "name": "반짝반짝 빛나는 부동산", "handle": "chlfactory"}];
-const DAYS = [{"iso": "2026-08-31", "md": "08/31", "wd": "월"}, {"iso": "2026-09-01", "md": "09/01", "wd": "화"}, {"iso": "2026-09-02", "md": "09/02", "wd": "수"}, {"iso": "2026-09-03", "md": "09/03", "wd": "목"}, {"iso": "2026-09-04", "md": "09/04", "wd": "금"}, {"iso": "2026-09-05", "md": "09/05", "wd": "토"}, {"iso": "2026-09-06", "md": "09/06", "wd": "일"}, {"iso": "2026-09-07", "md": "09/07", "wd": "월"}, {"iso": "2026-09-08", "md": "09/08", "wd": "화"}, {"iso": "2026-09-09", "md": "09/09", "wd": "수"}];
-const TODAY = '2026-09-09';
-const POSTS = [{"blog": "fallingrain90", "date": "2026-09-09", "time": "06:16", "title": "평택 창고 임대 포승읍 원정리920평 넓은마당 평택항 인근 트레일러 진입 단독창고", "link": "https://blog.naver.com/fallingrain90/224404341830", "cities": ["pt"]}, {"blog": "highhigh3022", "date": "2026-09-08", "time": "17:52", "title": "안성창고임대 야적장 추천 넓은마당 단독 소형공장임대입니다.", "link": "https://blog.naver.com/highhigh3022/224405055288", "cities": ["as"]}, {"blog": "shmy3300", "date": "2026-09-08", "time": "14:53", "title": "아산500평공장임대·매매｜음봉 산동리 532평 1만Class 클린룸, 감정가 35억!", "link": "https://blog.naver.com/shmy3300/224404826969", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-08", "time": "12:40", "title": "매물번호-267(아산 - 공장매매)아산시 음봉면 의식리 공장 12억｜경제자유구역 호재｜공장+사무실 완비｜7.5m 고층고｜즉시 입주", "link": "https://blog.naver.com/wldnjswlghks1/224402195761", "cities": ["ca"]}, {"blog": "shmy3300", "date": "2026-09-08", "time": "11:35", "title": "⚠️천안대형공장매매｜성환 4,516평 부지·공장 1,185평, 추가 증축 여력까지!", "link": "https://blog.naver.com/shmy3300/224404604004", "cities": ["ca"]}, {"blog": "chlrhqnehdtks486", "date": "2026-09-08", "time": "09:51", "title": "오산공장임대 부산동 59평 건물 동탄 오산IC 인근 단독형태 마당 민원소지적음 내부사무실 완비 매물번호 10236", "link": "https://blog.naver.com/chlrhqnehdtks486/224404482186", "cities": ["os"]}, {"blog": "wldnjswlghks1", "date": "2026-09-08", "time": "08:50", "title": "매물번호-266(천안 - 공장임대)천안시 서북구 성환읍 공장임대 232평｜즉시입주｜물류최강｜2.8톤 호이스트 월세650만", "link": "https://blog.naver.com/wldnjswlghks1/224402194357", "cities": ["ca"]}, {"blog": "the_onecom90", "date": "2026-09-08", "time": "07:50", "title": "평택 공장 임대 청북읍 855평 도크시설 넓은 마당 트레일러 진입", "link": "https://blog.naver.com/the_onecom90/224402334993", "cities": ["pt"]}, {"blog": "fallingrain90", "date": "2026-09-08", "time": "07:30", "title": "평택 공장 임대 청북읍 고잔리800평 넓은마당 트레일러진입 호이스트 신축급", "link": "https://blog.naver.com/fallingrain90/224402320404", "cities": ["pt"]}, {"blog": "mamasky09", "date": "2026-09-07", "time": "20:25", "title": "아산음봉공장매매 산동리 공장매매 심층|케이밸리 산단배후, 준클린룸 보유 신축급 공장 (매도희망 35억)", "link": "https://blog.naver.com/mamasky09/224404013908", "cities": ["ca"]}, {"blog": "mamasky09", "date": "2026-09-07", "time": "19:52", "title": "천안산업단지임대 제4산업단지 준클린룸 공장임대 | 4층 준크리룸470평1층약100평 별도임대", "link": "https://blog.naver.com/mamasky09/224403987564", "cities": ["ca"]}, {"blog": "shmy3300", "date": "2026-09-07", "time": "19:28", "title": "아산200평공장임대｜영인면 273평, 7.5톤·5톤 호이스트와 넓은 940평 대지", "link": "https://blog.naver.com/shmy3300/224403968782", "cities": ["ca"]}, {"blog": "chlfactory", "date": "2026-09-07", "time": "15:07", "title": "오산 창고 임대 부산동 40평 건물 내부사무실 완비 민원제로 오산IC 동탄2신도시 인근", "link": "https://blog.naver.com/chlfactory/224403670762", "cities": ["os"]}, {"blog": "cjsuddl88", "date": "2026-09-07", "time": "12:15", "title": "[평택 공장 임대] 청북읍 고잔리 422평 대형공장 5톤 호이스트 설치된 공장이며, 청북 ic 5분 내 진입가능", "link": "https://blog.naver.com/cjsuddl88/224403469562", "cities": ["pt"]}, {"blog": "shmy3300", "date": "2026-09-07", "time": "10:19", "title": "️북천안IC 150평 공장 임대 | 대지 930평 넓은 마당 확보! 호이스트 5T설치가능한 천안150평공장임대", "link": "https://blog.naver.com/shmy3300/224403332531", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-07", "time": "08:50", "title": "매물번호-265(아산 - 토지매매)아산 대형공장부지 4590평 매매 115억|삼성·탕정디스플레이 배후지|반도체공장 최적지", "link": "https://blog.naver.com/wldnjswlghks1/224394613172", "cities": ["ca"]}, {"blog": "fallingrain90", "date": "2026-09-07", "time": "07:50", "title": "화성 공장 임대 양감면 200평 호이스트5톤 층고11m 사무실 완비", "link": "https://blog.naver.com/fallingrain90/224401663962", "cities": ["hs"]}, {"blog": "the_onecom90", "date": "2026-09-07", "time": "07:30", "title": "화성 공장 임대 팔탄면 103평 해썹인증 이력 단독공장", "link": "https://blog.naver.com/the_onecom90/224401527676", "cities": ["hs"]}, {"blog": "cjsuddl88", "date": "2026-09-06", "time": "21:07", "title": "화성 동오리 공장임대 약 107평 전력 50kw이상, 호이스트 1.5톤, 사출공장, 사무실 설치, 좋은 가성비 매믈", "link": "https://blog.naver.com/cjsuddl88/224402895682", "cities": ["hs"]}, {"blog": "cjsuddl88", "date": "2026-09-06", "time": "12:54", "title": "양감 송산리 창고, 공장임대 약 360평 전력 200kw, 큰 평수, 13.2m 높은 층고, 공장등록가능", "link": "https://blog.naver.com/cjsuddl88/224402548585", "cities": ["etc"]}, {"blog": "wldnjswlghks1", "date": "2026-09-06", "time": "12:50", "title": "매물번호-264(아산 - 공장임대)아산시 염치읍 방현리 공장 임대 | 45번 국도 인접, 539평 야드 신축급 2000/180", "link": "https://blog.naver.com/wldnjswlghks1/224394614085", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-06", "time": "08:30", "title": "매물번호-263(아산 - 공장임대)아산시 음봉면 산동리 공장임차｜보증금 3500만 월세 400만｜공장+사무동 완비 30KW 전력 제조업소 완벽", "link": "https://blog.naver.com/wldnjswlghks1/224394611227", "cities": ["ca"]}, {"blog": "jjune0010", "date": "2026-09-05", "time": "21:05", "title": "두정동 깔끔한 중대형 사무실 , 구분된 업무공간", "link": "https://blog.naver.com/jjune0010/224402083118", "cities": ["etc"]}, {"blog": "jjune0010", "date": "2026-09-05", "time": "21:02", "title": "아산 신정호 상가임대｜방축동 1층 40평대 대형 상가, 짬뽕전문점", "link": "https://blog.naver.com/jjune0010/224402081410", "cities": ["ca"]}, {"blog": "chlrhqnehdtks486", "date": "2026-09-05", "time": "17:56", "title": "오산 공장 임대 갈곶동 960평 초대형 단독마당 일반공업지역 오산IC 인접 대형 물류 제조 공장 임대", "link": "https://blog.naver.com/chlrhqnehdtks486/224401973346", "cities": ["os"]}, {"blog": "wldnjswlghks1", "date": "2026-09-05", "time": "13:00", "title": "매물번호-262(아산 - 공장임대)염치읍 123평 제조업소 | 5.2m 층고·행거도어·2층사무실 | 보증금 3200·월세 320", "link": "https://blog.naver.com/wldnjswlghks1/224394610365", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-05", "time": "09:00", "title": "매물번호-261(아산 - 공장매매)아산시 음봉면 쌍암리 공장 12.4억｜200KW 고전력｜650평 대형부지｜급매!!", "link": "https://blog.naver.com/wldnjswlghks1/224394609410", "cities": ["ca"]}, {"blog": "mamasky09", "date": "2026-09-04", "time": "17:53", "title": "아산산업단지 대형공장매매 준클린룸 클린룸시설 공장매매 | 약8000평 크린룸 반도체,전자부품 클린룸공장", "link": "https://blog.naver.com/mamasky09/224401119839", "cities": ["ca"]}, {"blog": "shmy3300", "date": "2026-09-04", "time": "16:29", "title": "천안물류창고임대 ️북천안IC 13분 신축 첫입주 2,331평 대형창고임대", "link": "https://blog.naver.com/shmy3300/224401019233", "cities": ["ca"]}, {"blog": "chlfactory", "date": "2026-09-04", "time": "13:44", "title": "화성 동탄 창고 임대 금곡동 34평 소형 창고 단독형태마당 소매점 쇼핑몰 추천", "link": "https://blog.naver.com/chlfactory/224400815469", "cities": ["hs"]}, {"blog": "mksung0913", "date": "2026-09-04", "time": "12:30", "title": "화성 향남 100평 단독공장 임대 신축 2차선접 마당넓은공장 창고임대 광고효과 넓은마당 임대 매매", "link": "https://blog.naver.com/mksung0913/224400735974", "cities": ["hs"]}, {"blog": "wldnjswlghks1", "date": "2026-09-04", "time": "12:10", "title": "매물번호-260(아산 - 공장임대)아산 염치읍 공장용 건물 임대|보증금 3700만 월세 379만|매매 11억 6800만 건물 151평", "link": "https://blog.naver.com/wldnjswlghks1/224394607739", "cities": ["ca"]}, {"blog": "chofall2021", "date": "2026-09-04", "time": "11:11", "title": "[천안 공장 임대] 300평대 사무실 큰 단독공장 / 성환읍 마당 1000평 이상, 항온항습 고전력, 북천안IC", "link": "https://blog.naver.com/chofall2021/224400646999", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-09-04", "time": "11:06", "title": "평택 청북 200평 400평 단독공장 임대 2차선접 호이스트5톤 광고효과 배관 철강 반도체공장 추천 대지1300평 대형마당 고덕삼성 협력업체공장", "link": "https://blog.naver.com/mksung0913/224400640443", "cities": ["pt"]}, {"blog": "wldnjswlghks1", "date": "2026-09-04", "time": "08:00", "title": "매물번호-259(천안 - 공장임대)천안 직산 제4일반산업단지 인접 CNC가공 추천 150평 임대 | 8m 고천정·호이스트 완비", "link": "https://blog.naver.com/wldnjswlghks1/224394606792", "cities": ["ca"]}, {"blog": "cjsuddl88", "date": "2026-09-04", "time": "07:30", "title": "양감 요당리 공장임대 약 450평 전력 100kw이상, 호이스트 2.8톤, 대형 큰 평수, 높은층고, 사무실 별도 부지 3천평", "link": "https://blog.naver.com/cjsuddl88/224400283737", "cities": ["etc"]}, {"blog": "the_onecom90", "date": "2026-09-04", "time": "06:01", "title": "농업 직불금 최대 얼마까지? 2026 소농직불금·면적직불금 지급기준", "link": "https://blog.naver.com/the_onecom90/224400408462", "cities": ["etc"]}, {"blog": "fallingrain90", "date": "2026-09-04", "time": "05:36", "title": "농업 직불금 1년에 얼마 받을까 2026년 농지 면적별 예상 지급액 계산", "link": "https://blog.naver.com/fallingrain90/224400401043", "cities": ["etc"]}, {"blog": "band1101", "date": "2026-09-04", "time": "00:10", "title": "[안성시 대덕면] 저렴한임대료 안성공장창고임대 넓은마당 창고 및 다양한 업종가능", "link": "https://blog.naver.com/band1101/224398449211", "cities": ["as"]}, {"blog": "malice0926", "date": "2026-09-04", "time": "00:10", "title": "양감면 위치 화성공장임대 소형공장 건물 약 56평 25톤진입가능 양감IC 향남IC 인근", "link": "https://blog.naver.com/malice0926/224398445515", "cities": ["hs"]}, {"blog": "mamasky09", "date": "2026-09-03", "time": "19:24", "title": "천안공장매매 북천안공장매매 천안모전리 북천안IC 5분! 교통의 핵심 경부고속도로 공장·물류창고 매매 (평택-천안 반도체/입지분석)", "link": "https://blog.naver.com/mamasky09/224400034815", "cities": ["pt", "ca"]}, {"blog": "highhigh3022", "date": "2026-09-03", "time": "18:01", "title": "오산공장임대 창고가능 연면적 960평 사무실별도 고전력 사용가능합니다", "link": "https://blog.naver.com/highhigh3022/224399963850", "cities": ["os"]}, {"blog": "chlrhqnehdtks486", "date": "2026-09-03", "time": "16:11", "title": "화성 동탄 공장 임대 금곡동 2차선 접 11톤 대형차 진출입 내부 사무실 완비 50평 공장 창고 임대", "link": "https://blog.naver.com/chlrhqnehdtks486/224399829673", "cities": ["hs"]}, {"blog": "wldnjswlghks1", "date": "2026-09-03", "time": "12:40", "title": "매물번호-258(아산 - 공장임대)아산시 음봉면 공장 90평 임대 | 150KW 고전력 소형공장 | 콤프레샤 기본구비 호이스트", "link": "https://blog.naver.com/wldnjswlghks1/224394605802", "cities": ["ca"]}, {"blog": "sayfree9", "date": "2026-09-03", "time": "10:42", "title": "[팔탄식품공장 매매] HACCP 인증 완료 냉장·냉동시설 갖춘 화성 팔탄 공장매매", "link": "https://blog.naver.com/sayfree9/224399410635", "cities": ["hs"]}, {"blog": "melody404", "date": "2026-09-03", "time": "10:02", "title": "안성공장임대 양성면위치한 창고임대로도 좋습니다. 호이스트 크린룸  고전력 공장임대", "link": "https://blog.naver.com/melody404/224399385665", "cities": ["as"]}, {"blog": "wldnjswlghks1", "date": "2026-09-03", "time": "09:00", "title": "매물번호-257(아산 - 토지매매)아산 공장부지 염치읍 662평 13.2억 | 평당 200만원·허가완료·대출90%가능 | 현충사IC·45번국도 인접·성장성우수", "link": "https://blog.naver.com/wldnjswlghks1/224394604869", "cities": ["ca"]}, {"blog": "fallingrain90", "date": "2026-09-03", "time": "07:50", "title": "아산 음봉 공장 임대 787평 넓은마당 트레일러 호이스트 완비", "link": "https://blog.naver.com/fallingrain90/224398166755", "cities": ["ca"]}, {"blog": "the_onecom90", "date": "2026-09-03", "time": "07:30", "title": "천안 공장 임대 성환읍 60평 1번 국도 인접 신축 소형 공장", "link": "https://blog.naver.com/the_onecom90/224398046325", "cities": ["ca"]}, {"blog": "yuks76", "date": "2026-09-03", "time": "00:10", "title": "[화성시 만세구 양감면] 화성공장매매 단독공장 대지 약 300평 건물 약 90평 신축건물 마당넓음 양감IC인근", "link": "https://blog.naver.com/yuks76/224398435937", "cities": ["hs"]}, {"blog": "cjsuddl88", "date": "2026-09-02", "time": "17:45", "title": "향남 상두리 공장임대 약 120평 전력 49kw, 호이스트 3톤, 산업단지, 가성비 월차임 평 당 약 2.5만원", "link": "https://blog.naver.com/cjsuddl88/224398742233", "cities": ["etc"]}, {"blog": "chlfactory", "date": "2026-09-02", "time": "17:34", "title": "용인 공장 임대 남사읍 북리 440평 신축 첫입주 층고 12m 오수직관 내부사무실 기숙사 옵션", "link": "https://blog.naver.com/chlfactory/224398729743", "cities": ["yi"]}, {"blog": "mamasky09", "date": "2026-09-02", "time": "17:03", "title": "아산공장매매 신창면공장 궁화리 공장매매 | 현대자동차 핵심클러스터·공장동 평가절하 개축 및 리모델링추천 부지", "link": "https://blog.naver.com/mamasky09/224398691737", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-09-02", "time": "15:29", "title": "평택 팽성 공장 임대 200평 단독공장 두동구조 호이스트2기 사무실완비", "link": "https://blog.naver.com/mksung0913/224398572816", "cities": ["pt"]}, {"blog": "wldnjswlghks1", "date": "2026-09-02", "time": "12:50", "title": "매물번호-256(아산 - 공장임대)아산 염치읍 방현리 건물 임대 대형건물 273평 호이스트 3T 2기 월세 680만|보증금 6800만|매매 17억 6800만", "link": "https://blog.naver.com/wldnjswlghks1/224394602931", "cities": ["ca"]}, {"blog": "speed1867", "date": "2026-09-02", "time": "11:43", "title": "아산육가공공장매매｜HACCP 인증받은 대형 육가공공장, 즉시 가동 가능한 신창면 공장｜식품공장500평, 냉장 냉동 전력 250KW", "link": "https://blog.naver.com/speed1867/224398316268", "cities": ["ca"]}, {"blog": "mamasky09", "date": "2026-09-02", "time": "09:56", "title": "예산대형공장매매 예산산업단지 최고스펙 신축공장 | 대지 2.2만평·연면적 1.29만평|자동차부품 조립제조업·금속가공·전기장비 추천", "link": "https://blog.naver.com/mamasky09/224398191275", "cities": ["etc"]}, {"blog": "wldnjswlghks1", "date": "2026-09-02", "time": "08:50", "title": "매물번호-255(아산 - 공장매매)아산시 음봉면 소동리 공장 12억｜200KW 초고전력｜7m 고층고｜삼성반도체 배후지｜임대차 승계", "link": "https://blog.naver.com/wldnjswlghks1/224394600614", "cities": ["ca"]}, {"blog": "the_onecom90", "date": "2026-09-02", "time": "05:30", "title": "천안 공장 임대 성환읍 137평 신축 트레일러 진입 넓은마당", "link": "https://blog.naver.com/the_onecom90/224398028745", "cities": ["ca"]}, {"blog": "fallingrain90", "date": "2026-09-02", "time": "04:22", "title": "평택 공장 임대 100평 포승공단 호이스트5톤 트레일러 진입", "link": "https://blog.naver.com/fallingrain90/224398010347", "cities": ["pt"]}, {"blog": "cjsuddl88", "date": "2026-09-01", "time": "16:26", "title": "향남 갈천 공장임대 약 59평 전력 30kw, 제조업소, 공장등록가능, 가성비, 월차임 평 당 약 2만원", "link": "https://blog.naver.com/cjsuddl88/224397456920", "cities": ["etc"]}, {"blog": "cjsuddl88", "date": "2026-09-01", "time": "15:58", "title": "양감공장임대 약 100평 전력 30kw, 제조업소 등록, 가성비 좋은, 창고 및 공장용지", "link": "https://blog.naver.com/cjsuddl88/224397420579", "cities": ["etc"]}, {"blog": "mamasky09", "date": "2026-09-01", "time": "15:12", "title": "아산둔포 대형공장 둔포공장매매 천안,아산,단지산업벨트 핵심지역 | 대지20,000평 반도체·자동차부품 핵심클러스터 둔포", "link": "https://blog.naver.com/mamasky09/224397360792", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-09-01", "time": "12:50", "title": "평택 서탄 공장 창고 임대 113평 저렴한임대료 대형차 단독마당 도로변 진위역인근", "link": "https://blog.naver.com/mksung0913/224397189961", "cities": ["pt"]}, {"blog": "wldnjswlghks1", "date": "2026-09-01", "time": "12:30", "title": "매물번호-254(천안 - 토지매매)천안시 동남구 목천읍 용연저수지 뷰 전원주택 부지 2.5억 | 평당 136만원 명품 토지 2029년 관광개발 호재", "link": "https://blog.naver.com/wldnjswlghks1/224394599268", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-09-01", "time": "10:39", "title": "당진 대형 공장 임대 호이스트 3000평 호이스트 10톤 30톤 2기 층고높은 단독공장 광고효과 좋은 도로변 고전력", "link": "https://blog.naver.com/mksung0913/224397037490", "cities": ["etc"]}, {"blog": "wldnjswlghks1", "date": "2026-09-01", "time": "08:40", "title": "매물번호-253(아산 - 공장매매)염치읍 123평 제2종근린생활시설 | 5.2m 층고·행거도어·이층구조 | 10억 7,800만 | 탕정디스플레이 영향권", "link": "https://blog.naver.com/wldnjswlghks1/224394597835", "cities": ["ca"]}, {"blog": "fallingrain90", "date": "2026-09-01", "time": "06:44", "title": "천안 공장 임대 100평 구성동 대형차 진입 넓은마당 준신축급", "link": "https://blog.naver.com/fallingrain90/224396850979", "cities": ["ca"]}, {"blog": "the_onecom90", "date": "2026-09-01", "time": "06:30", "title": "아산 공장 임대 둔포면 석곡리200평 크린룸 층고9m 호이스트5톤 고전력950kw", "link": "https://blog.naver.com/the_onecom90/224396845596", "cities": ["ca"]}, {"blog": "the_onecom90", "date": "2026-08-31", "time": "14:49", "title": "천안 공장 임대 직산읍 신갈리 100평 호이스트3톤 고전력100kw", "link": "https://blog.naver.com/the_onecom90/224396070903", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-08-31", "time": "14:27", "title": "당진 공장 임대 송산 연면적 2800평 10톤호이스트 3기 층고16m 신축 마당넓은 단독공장 츄레라 진입", "link": "https://blog.naver.com/mksung0913/224396042427", "cities": ["etc"]}, {"blog": "shmy3300", "date": "2026-08-31", "time": "13:25", "title": "천안1000평공장임대｜1,089평 전력 450kW 넓은 마당까지, 동남구 대형공장임대", "link": "https://blog.naver.com/shmy3300/224395967013", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-08-31", "time": "12:54", "title": "[전속매물]용인 남사읍 2000평 공장임대 사무실 기숙사 식당외주업체입점 용인반도체클러스터 입지좋은 공장 트레일러진입 전기2000kw 공장임대", "link": "https://blog.naver.com/mksung0913/224395933143", "cities": ["yi"]}, {"blog": "wldnjswlghks1", "date": "2026-08-31", "time": "12:50", "title": "매물번호-252(천안 - 다중주택매매)천안 봉명동 수익형 고시원 8.2억 | 월 600만원 수익 주택수 제외 절세형 투자용부동산", "link": "https://blog.naver.com/wldnjswlghks1/224394596074", "cities": ["ca"]}, {"blog": "chofall2021", "date": "2026-08-31", "time": "11:10", "title": "[천안 공장 임대] 시내권, 대지 600평, 공장 120평/ 마당 500평, 건물 150평, 도로변 진입, 입지 우수", "link": "https://blog.naver.com/chofall2021/224395817376", "cities": ["ca"]}, {"blog": "fallingrain90", "date": "2026-08-31", "time": "10:51", "title": "평택 공장 매매 청북읍 고잔리1409평 3동 구조 청북ic 인근", "link": "https://blog.naver.com/fallingrain90/224395793746", "cities": ["pt"]}, {"blog": "sayfree9", "date": "2026-08-31", "time": "09:10", "title": "화성 공장 경매 | 감정가 49% 반값 진행! 양감면 신축급 제조업소 (2025타경1219)", "link": "https://blog.naver.com/sayfree9/224395397180", "cities": ["hs"]}, {"blog": "wldnjswlghks1", "date": "2026-08-31", "time": "08:40", "title": "매물번호-251(아산 - 공장매매)아산시 음봉면 소동리 공장 8.5억｜100KW 고전력｜호이스트 2기 완비｜삼성반도체 배후지", "link": "https://blog.naver.com/wldnjswlghks1/224387632498", "cities": ["ca"]}, {"blog": "band1101", "date": "2026-08-31", "time": "00:10", "title": "화성공장창고임대 광고효과 건물 약 158평 도로변 인근 양감IC 향남IC 인근", "link": "https://blog.naver.com/band1101/224392950842", "cities": ["hs"]}, {"blog": "malice0404", "date": "2026-08-31", "time": "00:10", "title": "[평택시 오성면] 오성면창공장임대 건물 50평 창고 및 단순제조업 추천 저렴한공장 즉시입주", "link": "https://blog.naver.com/malice0404/224392914866", "cities": ["pt"]}, {"blog": "yuks76", "date": "2026-08-31", "time": "00:10", "title": "[양감면] 화성공장창고임대 호이스트 7.5톤 건물 약 243평 대형차진입 양감IC인근", "link": "https://blog.naver.com/yuks76/224392934194", "cities": ["hs"]}, {"blog": "malice0926", "date": "2026-08-31", "time": "00:10", "title": "화성공장창고임대 중형공장 건물 약 150평 준신축급 대형차진입 양감IC 인근", "link": "https://blog.naver.com/malice0926/224392946486", "cities": ["hs"]}];
+const BLOGS = [{"id": "shmy3300", "handle": "shmy3300", "name": "천안아산공장전문 부동산"}, {"id": "chofall2021", "handle": "chofall2021", "name": "전지적 부동산 시점"}, {"id": "jjune0010", "handle": "jjune0010", "name": "천안 주택,건물,토지 매매"}, {"id": "fallingrain90", "handle": "fallingrain90", "name": "평택 천안 안성 공장 창고 전문 더원 부동산"}, {"id": "the_onecom90", "handle": "the_onecom90", "name": "더원_ 실 매물 공장창고전문"}, {"id": "wldnjswlghks1", "handle": "wldnjswlghks1", "name": "콕부동산"}, {"id": "speed1867", "handle": "speed1867", "name": "천안아산공장나라TV"}, {"id": "mamasky09", "handle": "mamasky09", "name": "천안아산 공장인사이트"}, {"id": "melody404", "handle": "melody404", "name": "하이부동산 | 공장·창고 전문"}, {"id": "highhigh3022", "handle": "highhigh3022", "name": "안성평택용인 공장 창고 임대 매매"}, {"id": "cjsuddl88", "handle": "cjsuddl88", "name": "팔팔부동산중개"}, {"id": "sayfree9", "handle": "sayfree9", "name": "탑부동산중개 | 물류·제조업 성장 파트너"}, {"id": "mksung0913", "handle": "mksung0913", "name": "성신부동산 [공장창고전문]"}, {"id": "band1101", "handle": "band1101", "name": "힘내자~"}, {"id": "malice0404", "handle": "malice0404", "name": "Ishouldworkhard."}, {"id": "yuks76", "handle": "yuks76", "name": "Ishouldworkhard."}, {"id": "malice0926", "handle": "malice0926", "name": "공장·창고 찾을 땐 | 밴드부동산.com"}, {"id": "7575aaa", "handle": "7575aaa", "name": "7575aaa"}, {"id": "solluna8082", "handle": "solluna8082", "name": "꿀벌공인중개사사무소"}, {"id": "chlrhqnehdtks486", "handle": "chlrhqnehdtks486", "name": "압도적 의뢰받는 부동산"}, {"id": "chlfactory", "handle": "chlfactory", "name": "반짝반짝 빛나는 부동산"}];
+const DAYS = [{"iso": "2026-09-06", "md": "09/06", "wd": "일"}, {"iso": "2026-09-07", "md": "09/07", "wd": "월"}, {"iso": "2026-09-08", "md": "09/08", "wd": "화"}, {"iso": "2026-09-09", "md": "09/09", "wd": "수"}, {"iso": "2026-09-10", "md": "09/10", "wd": "목"}, {"iso": "2026-09-11", "md": "09/11", "wd": "금"}, {"iso": "2026-09-12", "md": "09/12", "wd": "토"}, {"iso": "2026-09-13", "md": "09/13", "wd": "일"}, {"iso": "2026-09-14", "md": "09/14", "wd": "월"}, {"iso": "2026-09-15", "md": "09/15", "wd": "화"}];
+const TODAY = "2026-09-15";
+const GENERATED_AT = "2026-09-15 21:11";
+const POSTS = [{"blog": "mamasky09", "date": "2026-09-15", "time": "20:34", "title": "아산공장매매 아산테크노밸리 반도체·전자부품·자동차 최적 입지 공장매매 삼성 현대자동차 평택 천안 골든라인", "link": "https://blog.naver.com/mamasky09/224412880944", "cities": ["pt", "ca"]}, {"blog": "shmy3300", "date": "2026-09-15", "time": "16:18", "title": "주목! 북천안120평공장임대｜경부고속도로에서 보이는 공장120평에 대지508평!｜넓은 마당+사무실 갖춘 실사용형 제조공장", "link": "https://blog.naver.com/shmy3300/224412616320", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-09-15", "time": "16:06", "title": "평택 청북 토지 매매 공장부지 2390평 계획관리지역", "link": "https://blog.naver.com/mksung0913/224412601352", "cities": ["pt"]}, {"blog": "mksung0913", "date": "2026-09-15", "time": "15:02", "title": "당진 송산면 대형 공장 임대 1720평 한동구조 넓은마당 38번국도변 츄레라진입가능 고덕삼성45분 현대제철1km 즉시입주 고전력", "link": "https://blog.naver.com/mksung0913/224412515739", "cities": ["etc"]}, {"blog": "mksung0913", "date": "2026-09-15", "time": "12:55", "title": "평택 서탄 공장 창고 임대 2차선변 넓은마당 112평 츄레라진입 기숙사 완비 가설천막70평 포함 합리적 임대료", "link": "https://blog.naver.com/mksung0913/224412362732", "cities": ["pt"]}, {"blog": "wldnjswlghks1", "date": "2026-09-15", "time": "12:30", "title": "매물번호-278(아산 - 공장임대)아산 염치읍 건물 임대 월세 360만 | 144평 행거도어 완비 | 탕정 반도체 호황 수혜지역", "link": "https://blog.naver.com/wldnjswlghks1/224411862915", "cities": ["ca"]}, {"blog": "speed1867", "date": "2026-09-15", "time": "12:08", "title": "[추천] 아산공장매매｜음봉 150평 공장 2개동·호이스트·월400만원 임대수익 가능한 300평 공장 ｜\"감정가 = 매매가\"", "link": "https://blog.naver.com/speed1867/224412315218", "cities": ["ca"]}, {"blog": "highhigh3022", "date": "2026-09-15", "time": "11:49", "title": "평택공장매매｜청북읍 468평 공장 400kW 전력·호이스트 4기·넓은 마당", "link": "https://blog.naver.com/highhigh3022/224412294366", "cities": ["pt"]}, {"blog": "melody404", "date": "2026-09-15", "time": "11:26", "title": "동탄공장임대｜용인 남사부터 안성까지 60평 소형공장·800평대 대형공장 소개", "link": "https://blog.naver.com/melody404/224412267799", "cities": ["as", "yi"]}, {"blog": "shmy3300", "date": "2026-09-15", "time": "10:57", "title": "‼️필독｜아산300평공장임대｜음봉 150평×2동! 대지 1,000평·호이스트 2기 설치예정", "link": "https://blog.naver.com/shmy3300/224412231801", "cities": ["ca"]}, {"blog": "chlfactory", "date": "2026-09-15", "time": "09:40", "title": "용인 남사 공장임대 통삼리 943평 대형 사옥형공장 2350kw 고전력 클린룸 화물리프트 동탄 장지IC 인접", "link": "https://blog.naver.com/chlfactory/224412143280", "cities": ["yi"]}, {"blog": "mamasky09", "date": "2026-09-15", "time": "09:32", "title": "천안공장임대 산업단지 특정유해물질·화학·화장품 업종 입주가능! 200평/60평 맞춤형 공장·사무실 임대 분석", "link": "https://blog.naver.com/mamasky09/224412135339", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-15", "time": "08:50", "title": "매물번호-277(천안 - 공장매매)천안 풍세산단 공장 매매 32억 | 1484평 대지, 층고 7.5m 남풍세IC 인접, 천안6산단·풍세2산단 계획지", "link": "https://blog.naver.com/wldnjswlghks1/224411862023", "cities": ["ca"]}, {"blog": "fallingrain90", "date": "2026-09-15", "time": "07:50", "title": "화성 공장 임대 장안면 독정리1336평 단독공장 대지3357평 호이스트 5톤 5기 발안ic 인근", "link": "https://blog.naver.com/fallingrain90/224410533828", "cities": ["hs"]}, {"blog": "the_onecom90", "date": "2026-09-15", "time": "06:50", "title": "평택 공장 매매 서탄면 금암리304평 신축 층고9m 식품공장 가능", "link": "https://blog.naver.com/the_onecom90/224407864052", "cities": ["pt"]}, {"blog": "cjsuddl88", "date": "2026-09-14", "time": "21:04", "title": "[화성 공장 임대] 향남읍 요리 144평 공장 3톤 호이스트 설치된 30kw 공장, 발안/양감 ic 5분 내 진입가능", "link": "https://blog.naver.com/cjsuddl88/224411666611", "cities": ["hs"]}, {"blog": "solluna8082", "date": "2026-09-14", "time": "17:50", "title": "화성 향남 공장임대 대지 472평 넓은 단독마당 월세 230만원", "link": "https://blog.naver.com/solluna8082/224411489435", "cities": ["hs"]}, {"blog": "chlrhqnehdtks486", "date": "2026-09-14", "time": "17:26", "title": "오산창고임대 원동 60평 단독마당 근생 창고 최근 리모델링 완비 탕비실 샤워실 사무실 동탄 인접", "link": "https://blog.naver.com/chlrhqnehdtks486/224411459679", "cities": ["os"]}, {"blog": "shmy3300", "date": "2026-09-14", "time": "16:27", "title": "주목｜천안 직산 120평 창고임대! 4산단·마정산단 5분, 바로 앞 식당까지! 빠른 입주까지 가능!", "link": "https://blog.naver.com/shmy3300/224411382941", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-09-14", "time": "12:54", "title": "평택 서탄면 360평 대형공장임대 공장270평 사무동90평 가설천막100평 호이스트3톤 고전력400kw 오산가까운 가성비좋은창고 임대료싼공장 즉시입주", "link": "https://blog.naver.com/mksung0913/224411096816", "cities": ["pt", "os"]}, {"blog": "mksung0913", "date": "2026-09-14", "time": "12:18", "title": "평택 고덕삼성 가까운 200평 신축단독공장 임대 화성 양감면 2차선도로접 광고효과 사무실 잘꾸며진 마당넓은 공장창고 양감IC근거리 즉시입주", "link": "https://blog.naver.com/mksung0913/224411054568", "cities": ["pt", "hs"]}, {"blog": "sayfree9", "date": "2026-09-14", "time": "10:03", "title": "【평택 공장 임대】 서탄면 마두리 60평! 가성비 끝판왕 월세 140만원 + 전력 45kW 인입된 실속형 제조장", "link": "https://blog.naver.com/sayfree9/224410897478", "cities": ["pt"]}, {"blog": "wldnjswlghks1", "date": "2026-09-14", "time": "08:50", "title": "매물번호-276(아산 - 공장매매)아산시 음봉면 의식리 공장 20억｜경제자유구역 호재｜매도인 재임대 확정｜721평 대형부지｜월 330만 수익", "link": "https://blog.naver.com/wldnjswlghks1/224402212947", "cities": ["ca"]}, {"blog": "the_onecom90", "date": "2026-09-14", "time": "07:50", "title": "평택 공장 임대 청북읍 어소리60평 신축 층고9.8m 대형차 진입 민원 無", "link": "https://blog.naver.com/the_onecom90/224407836582", "cities": ["pt"]}, {"blog": "fallingrain90", "date": "2026-09-14", "time": "07:30", "title": "안성 공장 임대 원곡면 지문리180평 신축 층고11m 호이스트5톤 트레일러 진입", "link": "https://blog.naver.com/fallingrain90/224407819527", "cities": ["as"]}, {"blog": "mamasky09", "date": "2026-09-13", "time": "11:43", "title": "천안공장매매 입장면 대형공장매매11,000평 공장부지 | 세종~포천고속도로 서운입장IC 최대수혜지역", "link": "https://blog.naver.com/mamasky09/224410019380", "cities": ["ca"]}, {"blog": "mamasky09", "date": "2026-09-13", "time": "09:51", "title": "천안공장임대 입장공장임 유리 대형공장ㅣ북천안IC 5분, 대지2500평 연면적1100평 분체도장·금속가공업 최적스펙", "link": "https://blog.naver.com/mamasky09/224409946884", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-13", "time": "09:10", "title": "매물번호-275(천안 - 공장매매)천안시 성환읍 공장 건물 매매 130억｜4,515평 대규모 부지｜확장 가능｜종축장 국가산업단지 인접", "link": "https://blog.naver.com/wldnjswlghks1/224402211064", "cities": ["ca"]}, {"blog": "chlfactory", "date": "2026-09-12", "time": "16:40", "title": "안성공장임대 원곡면 412평 대형공장 고전력 화물리프트 호이스트 완비 용인 남사 인접", "link": "https://blog.naver.com/chlfactory/224409431233", "cities": ["as", "yi"]}, {"blog": "mamasky09", "date": "2026-09-12", "time": "16:31", "title": "아산창고임대 배방읍 대형창고ㅣ평단가2만원,경쟁력있는임대금액 삼성전자 온양·천안 산업벨트 접근성 최고", "link": "https://blog.naver.com/mamasky09/224409424594", "cities": ["ca"]}, {"blog": "mamasky09", "date": "2026-09-12", "time": "15:44", "title": "천안성거공장 창고임대 성거읍 요방리 랙 파렛트 공장 창고ㅣ천안IC·북천안IC 중간지점 물류창고", "link": "https://blog.naver.com/mamasky09/224409387422", "cities": ["as", "ca"]}, {"blog": "chofall2021", "date": "2026-09-12", "time": "14:00", "title": "[아산 공장 매매] 500평대 제조업, 매매가 24억! 도로변 진입, 사출공장", "link": "https://blog.naver.com/chofall2021/224409224916", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-12", "time": "08:40", "title": "매물번호-274(아산 - 상가매매)아산 탕정면 4층 수익형 빌딩 매매 70억 | 월세 3,700만 | 보증금 6억 | 삼성·탕정 인접 투자처", "link": "https://blog.naver.com/wldnjswlghks1/224402206366", "cities": ["ca"]}, {"blog": "melody404", "date": "2026-09-11", "time": "18:09", "title": "안성 공도읍 공장임대 261~272평 저렴한 임대료 대형차 진입 가능", "link": "https://blog.naver.com/melody404/224408555817", "cities": ["as"]}, {"blog": "mksung0913", "date": "2026-09-11", "time": "15:02", "title": "[전속매물]안성시 고삼면 토지급매 177평 원삼SK하이닉스 근거리 투자용 소형토지매매 평당130만원 주말농장 작은토지 밭농사취미생활 용인반도체클러스터10km 소액투자용토지", "link": "https://blog.naver.com/mksung0913/224408346044", "cities": ["as", "yi"]}, {"blog": "mksung0913", "date": "2026-09-11", "time": "13:55", "title": "화성 양감 150평 단독공장임대 공장동 사무동분리 넓은마당 평택고덕삼성 가까운 공장 창고임대", "link": "https://blog.naver.com/mksung0913/224408267284", "cities": ["pt", "hs"]}, {"blog": "mamasky09", "date": "2026-09-11", "time": "13:15", "title": "천안공장매매 직산공업지역 대형공장 특정수질·대기 유해물질 입주가능! 1만평 희소 토지매각 (업종제한 無, 분할가능)", "link": "https://blog.naver.com/mamasky09/224408224659", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-11", "time": "13:00", "title": "매물번호-273(아산 - 공장임대)아산 염치읍 공장건물 임차 월 180만 | 삼성·탕정디스플레이 배후지 제조업소 현충사IC·43번국도 인접", "link": "https://blog.naver.com/wldnjswlghks1/224402209171", "cities": ["ca"]}, {"blog": "chlrhqnehdtks486", "date": "2026-09-11", "time": "09:51", "title": "안성공장임대 원곡면 산하리 100평 임대료 저렴한 공장 용인 남사 10분거리", "link": "https://blog.naver.com/chlrhqnehdtks486/224407997664", "cities": ["as", "yi"]}, {"blog": "wldnjswlghks1", "date": "2026-09-11", "time": "08:30", "title": "매물번호-272(아산 - 토지매매)반도체·디스플레이 호재] 아산 공장부지 13억 - 현충사IC·45번국도 접근성 최강 653평 건축허가완료", "link": "https://blog.naver.com/wldnjswlghks1/224402203970", "cities": ["ca"]}, {"blog": "fallingrain90", "date": "2026-09-11", "time": "04:01", "title": "안성 공장 임대 양성면 동항리140평 고전력300kw 사무실 별도", "link": "https://blog.naver.com/fallingrain90/224407812986", "cities": ["as"]}, {"blog": "the_onecom90", "date": "2026-09-11", "time": "03:34", "title": "안성 창고 임대 사곡동60평 마당567평 트레일러 진입 단독창고", "link": "https://blog.naver.com/the_onecom90/224407805632", "cities": ["as"]}, {"blog": "melody404", "date": "2026-09-10", "time": "19:05", "title": "안성공장임대 건평 합 550평 넓은마당 남안성ic 인근입니다.", "link": "https://blog.naver.com/melody404/224407464267", "cities": ["as"]}, {"blog": "chlfactory", "date": "2026-09-10", "time": "16:10", "title": "용인공장임대 남사읍 원암리 신축 1000평 대형 사옥형 공장 반도체클러스터 인근", "link": "https://blog.naver.com/chlfactory/224407273457", "cities": ["yi"]}, {"blog": "shmy3300", "date": "2026-09-10", "time": "13:46", "title": "천안야적장임대｜성환 2,300평 대형 나대지·마당, 분할·단기 임대 가능", "link": "https://blog.naver.com/shmy3300/224407094838", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-10", "time": "12:30", "title": "매물번호-271(천안 - 공장매매)[최상급 투자처] 천안 성환 14억 공장용부지 - 785평 대지 성환산업단지·고속도로 인근", "link": "https://blog.naver.com/wldnjswlghks1/224402202410", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-09-10", "time": "12:15", "title": "화성 정남 200평 크린룸 임대 단기임대 1만클라스 내부사무실 임대료싼 공장 2차선접 오산가까운 클린룸공장", "link": "https://blog.naver.com/mksung0913/224406997737", "cities": ["hs", "os"]}, {"blog": "wldnjswlghks1", "date": "2026-09-10", "time": "09:00", "title": "매물번호-270(아산 - 공장매매)아산 배방읍 공장 매매 | 39억 679평 대규모 공장 | 고압 500KW 호이스트 완비 | 삼성디스플레이 배후지 핵심 부지", "link": "https://blog.naver.com/wldnjswlghks1/224402199180", "cities": ["ca"]}, {"blog": "fallingrain90", "date": "2026-09-10", "time": "07:10", "title": "천안공장임대 입장면 독정리 1700평 층고4m 화물승강기 고전력 900kw", "link": "https://blog.naver.com/fallingrain90/224405706150", "cities": ["ca"]}, {"blog": "the_onecom90", "date": "2026-09-10", "time": "06:41", "title": "안성 공장 임대 양성면 1021평 마당 4370평 트레일러 진입 고전력290kw 사무동 별도", "link": "https://blog.naver.com/the_onecom90/224406697925", "cities": ["as"]}, {"blog": "mamasky09", "date": "2026-09-09", "time": "20:36", "title": "아산공장매매 둔포공장매매 | 삼성·현대차 산업벨트 품은 신축급 공장, 자동차·반도체 기업에 추천합니다", "link": "https://blog.naver.com/mamasky09/224406364023", "cities": ["ca"]}, {"blog": "solluna8082", "date": "2026-09-09", "time": "19:54", "title": "안성식품공장 임대 액상차 제조시설 HACCP 냉장창고 단독마당", "link": "https://blog.naver.com/solluna8082/224406331145", "cities": ["as"]}, {"blog": "solluna8082", "date": "2026-09-09", "time": "19:43", "title": "이천 공장매매 계획관리 약9900평 12M도로 900KW", "link": "https://blog.naver.com/solluna8082/224406322813", "cities": ["etc"]}, {"blog": "highhigh3022", "date": "2026-09-09", "time": "16:38", "title": "용인공장임대 남사읍 동탄인근 일반공업지역 199평 넓은마당 공장", "link": "https://blog.naver.com/highhigh3022/224406141060", "cities": ["yi"]}, {"blog": "cjsuddl88", "date": "2026-09-09", "time": "16:23", "title": "[화성 공장 임대] 향남읍 제암리 300평 대형공장평 당 1만원대, 발안IC 5분 내 진입가능", "link": "https://blog.naver.com/cjsuddl88/224406121565", "cities": ["hs"]}, {"blog": "sayfree9", "date": "2026-09-09", "time": "13:54", "title": "[청북공장임대] 청북IC 5분 거리, 넓은 야적공간 갖춘 단독형 공장", "link": "https://blog.naver.com/sayfree9/224405931814", "cities": ["etc"]}, {"blog": "mksung0913", "date": "2026-09-09", "time": "13:21", "title": "안성 원곡면 260평 신축단독공장 임대 대지1395평 마당넓은 공장 창고 대형야적장 즉시입주", "link": "https://blog.naver.com/mksung0913/224405894676", "cities": ["as"]}, {"blog": "wldnjswlghks1", "date": "2026-09-09", "time": "13:10", "title": "매물번호-269(아산 - 공장임대)아산 염치읍 공장 임대 129평 | 월세 320만 | 30m×50m×높이8m | 20KW 전력 | 45번 국도 직결", "link": "https://blog.naver.com/wldnjswlghks1/224402198104", "cities": ["ca"]}, {"blog": "shmy3300", "date": "2026-09-09", "time": "13:04", "title": "아산소형공장매매｜음봉 132평 5톤 호이스트 공장, 천안 성환·직산 인접! 음봉소형공장매매", "link": "https://blog.naver.com/shmy3300/224405876900", "cities": ["ca"]}, {"blog": "mksung0913", "date": "2026-09-09", "time": "12:51", "title": "화성 양감면 250평 단독공장임대 호이스트3톤 사무동 2차선접 가설천막 임대료싼공장 즉시입주", "link": "https://blog.naver.com/mksung0913/224405863484", "cities": ["hs"]}, {"blog": "yuks76", "date": "2026-09-09", "time": "11:02", "title": "[안성시 양성면] 안성공장창임대 건물 300평 저렴한임대료 호이스트 2.8T 넓은마당 야적가능 즉시입주", "link": "https://blog.naver.com/yuks76/224405692283", "cities": ["as"]}, {"blog": "the_onecom90", "date": "2026-09-09", "time": "10:46", "title": "천안 공장 매매 입장면 크린룸 1154평 호이스트5톤 단독공장 즉시명도", "link": "https://blog.naver.com/the_onecom90/224404337498", "cities": ["ca"]}, {"blog": "malice0404", "date": "2026-09-09", "time": "10:09", "title": "오산공장창고임대 단독공장 건물 약 59평 마당사용가능 민원없음 오산IC인근", "link": "https://blog.naver.com/malice0404/224405681766", "cities": ["os"]}, {"blog": "wldnjswlghks1", "date": "2026-09-09", "time": "08:10", "title": "매물번호-268(천안 - 토지매매)천안 부대동 토지 매매 | 부성1행정복지센터 인접, 건축도면 완성 부지 부성지구 개발예정지, 공영주차장 인접", "link": "https://blog.naver.com/wldnjswlghks1/224402196610", "cities": ["ca"]}, {"blog": "fallingrain90", "date": "2026-09-09", "time": "06:16", "title": "평택 창고 임대 포승읍 원정리920평 넓은마당 평택항 인근 트레일러 진입 단독창고", "link": "https://blog.naver.com/fallingrain90/224404341830", "cities": ["pt"]}, {"blog": "highhigh3022", "date": "2026-09-08", "time": "17:52", "title": "안성창고임대 야적장 추천 넓은마당 단독 소형공장임대입니다.", "link": "https://blog.naver.com/highhigh3022/224405055288", "cities": ["as"]}, {"blog": "shmy3300", "date": "2026-09-08", "time": "14:53", "title": "아산500평공장임대·매매｜음봉 산동리 532평 1만Class 클린룸, 감정가 35억!", "link": "https://blog.naver.com/shmy3300/224404826969", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-08", "time": "12:40", "title": "매물번호-267(아산 - 공장매매)아산시 음봉면 의식리 공장 12억｜경제자유구역 호재｜공장+사무실 완비｜7.5m 고층고｜즉시 입주", "link": "https://blog.naver.com/wldnjswlghks1/224402195761", "cities": ["ca"]}, {"blog": "shmy3300", "date": "2026-09-08", "time": "11:35", "title": "⚠️천안대형공장매매｜성환 4,516평 부지·공장 1,185평, 추가 증축 여력까지!", "link": "https://blog.naver.com/shmy3300/224404604004", "cities": ["ca"]}, {"blog": "chlrhqnehdtks486", "date": "2026-09-08", "time": "09:51", "title": "오산공장임대 부산동 59평 건물 동탄 오산IC 인근 단독형태 마당 민원소지적음 내부사무실 완비 매물번호 10236", "link": "https://blog.naver.com/chlrhqnehdtks486/224404482186", "cities": ["os"]}, {"blog": "wldnjswlghks1", "date": "2026-09-08", "time": "08:50", "title": "매물번호-266(천안 - 공장임대)천안시 서북구 성환읍 공장임대 232평｜즉시입주｜물류최강｜2.8톤 호이스트 월세650만", "link": "https://blog.naver.com/wldnjswlghks1/224402194357", "cities": ["ca"]}, {"blog": "the_onecom90", "date": "2026-09-08", "time": "07:50", "title": "평택 공장 임대 청북읍 855평 도크시설 넓은 마당 트레일러 진입", "link": "https://blog.naver.com/the_onecom90/224402334993", "cities": ["pt"]}, {"blog": "fallingrain90", "date": "2026-09-08", "time": "07:30", "title": "평택 공장 임대 청북읍 고잔리800평 넓은마당 트레일러진입 호이스트 신축급", "link": "https://blog.naver.com/fallingrain90/224402320404", "cities": ["pt"]}, {"blog": "mamasky09", "date": "2026-09-07", "time": "20:25", "title": "아산음봉공장매매 산동리 공장매매 심층|케이밸리 산단배후, 준클린룸 보유 신축급 공장 (매도희망 35억)", "link": "https://blog.naver.com/mamasky09/224404013908", "cities": ["ca"]}, {"blog": "mamasky09", "date": "2026-09-07", "time": "19:52", "title": "천안산업단지임대 제4산업단지 준클린룸 공장임대 | 4층 준크리룸470평1층약100평 별도임대", "link": "https://blog.naver.com/mamasky09/224403987564", "cities": ["ca"]}, {"blog": "shmy3300", "date": "2026-09-07", "time": "19:28", "title": "아산200평공장임대｜영인면 273평, 7.5톤·5톤 호이스트와 넓은 940평 대지", "link": "https://blog.naver.com/shmy3300/224403968782", "cities": ["ca"]}, {"blog": "solluna8082", "date": "2026-09-07", "time": "19:09", "title": "평택 폐차장 매매 자동차해체재활용 사업장 대지 1885평 2차선접", "link": "https://blog.naver.com/solluna8082/224403953469", "cities": ["pt"]}, {"blog": "chlfactory", "date": "2026-09-07", "time": "15:07", "title": "오산 창고 임대 부산동 40평 건물 내부사무실 완비 민원제로 오산IC 동탄2신도시 인근", "link": "https://blog.naver.com/chlfactory/224403670762", "cities": ["os"]}, {"blog": "cjsuddl88", "date": "2026-09-07", "time": "12:15", "title": "[평택 공장 임대] 청북읍 고잔리 422평 대형공장 5톤 호이스트 설치된 공장이며, 청북 ic 5분 내 진입가능", "link": "https://blog.naver.com/cjsuddl88/224403469562", "cities": ["pt"]}, {"blog": "shmy3300", "date": "2026-09-07", "time": "10:19", "title": "️북천안IC 150평 공장 임대 | 대지 930평 넓은 마당 확보! 호이스트 5T설치가능한 천안150평공장임대", "link": "https://blog.naver.com/shmy3300/224403332531", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-07", "time": "08:50", "title": "매물번호-265(아산 - 토지매매)아산 대형공장부지 4590평 매매 115억|삼성·탕정디스플레이 배후지|반도체공장 최적지", "link": "https://blog.naver.com/wldnjswlghks1/224394613172", "cities": ["ca"]}, {"blog": "fallingrain90", "date": "2026-09-07", "time": "07:50", "title": "화성 공장 임대 양감면 200평 호이스트5톤 층고11m 사무실 완비", "link": "https://blog.naver.com/fallingrain90/224401663962", "cities": ["hs"]}, {"blog": "the_onecom90", "date": "2026-09-07", "time": "07:30", "title": "화성 공장 임대 팔탄면 103평 해썹인증 이력 단독공장", "link": "https://blog.naver.com/the_onecom90/224401527676", "cities": ["hs"]}, {"blog": "cjsuddl88", "date": "2026-09-06", "time": "21:07", "title": "화성 동오리 공장임대 약 107평 전력 50kw이상, 호이스트 1.5톤, 사출공장, 사무실 설치, 좋은 가성비 매믈", "link": "https://blog.naver.com/cjsuddl88/224402895682", "cities": ["hs"]}, {"blog": "cjsuddl88", "date": "2026-09-06", "time": "12:54", "title": "양감 송산리 창고, 공장임대 약 360평 전력 200kw, 큰 평수, 13.2m 높은 층고, 공장등록가능", "link": "https://blog.naver.com/cjsuddl88/224402548585", "cities": ["etc"]}, {"blog": "wldnjswlghks1", "date": "2026-09-06", "time": "12:50", "title": "매물번호-264(아산 - 공장임대)아산시 염치읍 방현리 공장 임대 | 45번 국도 인접, 539평 야드 신축급 2000/180", "link": "https://blog.naver.com/wldnjswlghks1/224394614085", "cities": ["ca"]}, {"blog": "wldnjswlghks1", "date": "2026-09-06", "time": "08:30", "title": "매물번호-263(아산 - 공장임대)아산시 음봉면 산동리 공장임차｜보증금 3500만 월세 400만｜공장+사무동 완비 30KW 전력 제조업소 완벽", "link": "https://blog.naver.com/wldnjswlghks1/224394611227", "cities": ["ca"]}];
 // ===DASHBOARD_DATA_END===
 
 const CITY_ORDER = ['pt','as','ca','hs','os','yi','etc'];
@@ -350,6 +382,32 @@ function mdLabel(iso){ return iso.slice(5).replace('-','/'); }
 // POSTS는 fetch_rss.py가 이미 캘린더 기간(현재 10일)만큼만 수집해온 결과라서,
 // 매트릭스가 없어진 지금은 따로 기간을 다시 잘라낼 필요 없이 POSTS 전체를 그대로 집계하면 된다 —
 // 그게 곧 "최근 N일"이고, DAYS 배열의 길이가 그 N이다.
+function fmtDate(iso){ return iso.replace(/-/g,'.'); }
+
+function buildHeader(){
+  const n = BLOGS.length;
+  const eyebrow = document.getElementById('eyebrow');
+  if(eyebrow) eyebrow.textContent = `경쟁사 블로그 ${n}개 · 포스팅 현황판`;
+  const sub = document.getElementById('sub');
+  if(sub) sub.textContent = `평택 · 안성 · 천안·아산 · 화성 · 오산 · 용인 매물 포스팅이 경쟁사 ${n}곳 사이에서 어떻게 분포되는지 보는 표입니다. 조용한 지역이 우리 쪽 기회입니다.`;
+  const win = document.getElementById('cal-window');
+  if(win) win.textContent = `집계 구간 (${DAYS.length}일)`;
+  const range = document.getElementById('range');
+  if(range) range.textContent = `${fmtDate(DAYS[0].iso)} – ${fmtDate(TODAY)}`;
+  const src = document.getElementById('src');
+  if(src) src.textContent = `Naver 블로그 RSS 기준 · ${(typeof GENERATED_AT === 'string' && GENERATED_AT) ? GENERATED_AT : TODAY} 수집`;
+  const calTitle = document.getElementById('cal-title');
+  if(calTitle) calTitle.textContent = `${DAYS.length}일 포스팅 캘린더`;
+}
+
+function buildLegend(){
+  const el = document.getElementById('legend');
+  if(!el) return;
+  el.innerHTML = CITY_ORDER.map(c=>
+    `<span><i style="background:var(--${CITY_META[c].cls})"></i>${c==='etc'?'기타 지역':CITY_META[c].label}</span>`
+  ).join('');
+}
+
 function computeStats(){
   const totals = {}; CITY_ORDER.forEach(c=>totals[c]=0); totals.all = 0;
   const byBlog = BLOGS.map(b=>{
@@ -407,7 +465,7 @@ function buildCalendar(){
   const body = document.getElementById('cal-body');
   BLOGS.forEach(b=>{
     const tr = document.createElement('tr');
-    let rowHtml = `<td class="blogcell">${b.name}</td>`;
+    let rowHtml = `<td class="blogcell"><span class="bid">${b.handle}</span><span class="bname">[${b.name}]</span></td>`;
     DAYS.forEach(d=>{
       const dayPosts = POSTS.filter(p=>p.blog===b.id && p.date===d.iso);
       const dots = [];
@@ -431,11 +489,11 @@ function buildDetail(){
       const okCity = filterCity==='all' || p.cities.includes(filterCity);
       return okBlog && okCity;
     }).forEach(p=>{
-      const blogName = BLOGS.find(b=>b.id===p.blog).name;
+      const blog = BLOGS.find(b=>b.id===p.blog);
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td class="date">${p.date.slice(5).replace('-','/')} ${p.time}</td>
-        <td class="blog">${blogName}</td>
+        <td class="blog"><span class="bid">${blog.handle}</span><span class="bname">[${blog.name}]</span></td>
         <td class="title"><a href="${p.link}" target="_blank" rel="noopener">${p.title}</a></td>
         <td class="cities">${p.cities.map(c=>`<span class="tag-city ${CITY_META[c].cls}">${CITY_META[c].label}</span>`).join(' ')}</td>
       `;
@@ -460,7 +518,9 @@ function buildDetail(){
     blogFilterEl.innerHTML=''; cityFilterEl.innerHTML='';
     blogFilterEl.appendChild(chip('전체 경쟁사', state.blog==='all', ()=>{state.blog='all'; refreshChips(); render(state.blog,state.city);}));
     BLOGS.forEach(b=>{
-      blogFilterEl.appendChild(chip(b.name.length>9? b.handle : b.name, state.blog===b.id, ()=>{state.blog = state.blog===b.id?'all':b.id; refreshChips(); render(state.blog,state.city);}));
+      const c = chip(b.handle, state.blog===b.id, ()=>{state.blog = state.blog===b.id?'all':b.id; refreshChips(); render(state.blog,state.city);});
+      c.title = b.name;
+      blogFilterEl.appendChild(c);
     });
     cityFilterEl.appendChild(chip('전체 지역', state.city==='all', ()=>{state.city='all'; refreshChips(); render(state.blog,state.city);}));
     CITY_ORDER.forEach(c=>{
@@ -472,6 +532,77 @@ function buildDetail(){
   render('all','all');
 }
 
+
+/* ---------- 업데이트 버튼 ----------
+   발행된 페이지 안에서 rss.blog.naver.com을 직접 부를 수는 없다: 아티팩트 샌드박스가
+   외부 요청을 막고, 네이버 RSS는 curl_cffi의 TLS 지문 위장이 있어야 응답을 준다.
+   그래서 이 버튼은 "수집을 요청"하는 버튼이다 -- 갱신 명령을 클립보드에 담아주고,
+   Claude Code에 붙여넣으면 스크립트가 RSS를 다시 받아 이 현황판을 같은 링크로 갱신한다. */
+const REFRESH_PHRASE = '경쟁사 현황 갱신해줘';
+function buildRefresh(){
+  const btn = document.getElementById('refresh-btn');
+  const label = document.getElementById('refresh-label');
+  const note = document.getElementById('refresh-note');
+  const cmd = document.getElementById('refresh-cmd');
+  const stamp = document.getElementById('collected-at');
+  if(!btn) return;
+  if(stamp) stamp.textContent = (typeof GENERATED_AT === 'string' && GENERATED_AT) ? GENERATED_AT : TODAY;
+  cmd.textContent = REFRESH_PHRASE;
+  const restNote = note.innerHTML;
+  let timer = null;
+
+  async function copyPhrase(){
+    try{
+      await navigator.clipboard.writeText(REFRESH_PHRASE);
+      return true;
+    }catch(err){
+      try{
+        const ta = document.createElement('textarea');
+        ta.value = REFRESH_PHRASE;
+        ta.setAttribute('readonly','');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      }catch(err2){ return false; }
+    }
+  }
+
+  function selectCmd(){
+    try{
+      const range = document.createRange();
+      range.selectNodeContents(cmd);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }catch(err){ /* 선택이 막혀도 문구 자체는 화면에 보인다 */ }
+  }
+
+  btn.addEventListener('click', async ()=>{
+    clearTimeout(timer);
+    btn.classList.add('busy');
+    const ok = await copyPhrase();
+    btn.classList.remove('busy');
+    btn.classList.add('done');
+    label.textContent = ok ? '명령 복사됨' : '문구를 복사하세요';
+    note.innerHTML = ok
+      ? 'Claude Code에 <b>붙여넣고 엔터</b> — RSS를 다시 수집해 이 현황판이 갱신됩니다.'
+      : '왼쪽 문구를 <b>Ctrl+C</b>로 복사해 Claude Code에 붙여넣으세요.';
+    if(!ok) selectCmd();
+    timer = setTimeout(()=>{
+      btn.classList.remove('done');
+      label.textContent = '업데이트';
+      note.innerHTML = restNote;
+    }, 6000);
+  });
+}
+
+buildHeader();
+buildRefresh();
+buildLegend();
 const {totals, byBlog} = computeStats();
 buildCompetitiveSignal(totals, byBlog);
 buildCalendar();
